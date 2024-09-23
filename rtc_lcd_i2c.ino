@@ -1,7 +1,8 @@
-#include "RTClib.h"
 #include "LiquidCrystal_I2C.h"
 #include "IRremote.h"
+
 #include "Buzzer.cpp"
+#include "RTCControl.h"
 
 #define IR_PIN 2
 #define LED_PIN 3
@@ -17,26 +18,8 @@
 #define REMOTE_C 0xFFB04F
 #define REMOTE_MENU 0xFF47B8
 
-struct date_time {
-  int hour;
-  int min;
-  int sec;
-  int weekdayNum;
-  String weekdayString;
-  int day;
-  int month;
-  int year;
-  String time_string;
-  String date_string;
-  String full_string;
-};
-
-String daysOfTheWeek[7] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
-
-RTC_DS1307 rtc;  // required
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-Notes allNotes;
-date_time dt, dtEdit;
+RTCDateTime clockTime, editTime;
 IRrecv irrecv(IR_PIN);
 decode_results result;
 bool clockEnabled = true, canEdit = false, canSetTime = false;
@@ -44,12 +27,11 @@ int editPos = 0;
 
 void setup() {
   Serial.begin(9600);
-  rtc.begin();
+  RTCDateTime::initRTC();
   lcd.init();
   pinMode(LED_PIN, OUTPUT);
   lcd.backlight();
   irrecv.enableIRIn();
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 }
 
 void loop() {
@@ -59,41 +41,41 @@ void loop() {
       case REMOTE_UP:
         Serial.println("UP");
         if (!canEdit) break;
-        if (editPos == 0) dtEdit.hour = dtEdit.hour == 23 ? 0 : dtEdit.hour + 1;
-        if (editPos == 1) dtEdit.min = dtEdit.min == 59 ? 0 : dtEdit.min + 1;
-        if (editPos == 2) dtEdit.sec = dtEdit.sec == 59 ? 0 : dtEdit.sec + 1;
+        if (editPos == 0) editTime.hour = editTime.hour == 23 ? 0 : editTime.hour + 1;
+        if (editPos == 1) editTime.min = editTime.min == 59 ? 0 : editTime.min + 1;
+        if (editPos == 2) editTime.sec = editTime.sec == 59 ? 0 : editTime.sec + 1;
         if (editPos == 3) {
           int d = 0;
-          if (dtEdit.month == 2) d = dtEdit.year % 4 == 0 ? 29 : 28;
-          else if (dtEdit.month == 4 || dtEdit.month == 6 || dtEdit.month == 9 || dtEdit.month == 11) d = 30;
+          if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
+          else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
           else d = 31;
-          dtEdit.day = dtEdit.day == d ? 1 : dtEdit.day + 1;
-          dtEdit.weekdayNum = (dtEdit.weekdayNum + 1) % 7;
+          editTime.day = editTime.day == d ? 1 : editTime.day + 1;
+          // editTime.weekdayNum = (editTime.weekdayNum + 1) % 7;
         }
-        if (editPos == 4) dtEdit.month = dtEdit.month == 12 ? 1 : dtEdit.month + 1;
-        if (editPos == 5) dtEdit.year++;
+        if (editPos == 4) editTime.month = editTime.month == 12 ? 1 : editTime.month + 1;
+        if (editPos == 5) editTime.year++;
         break;
       case REMOTE_DOWN:
         Serial.println("DOWN");
         if (!canEdit) break;
-        if (editPos == 0) dtEdit.hour = dtEdit.hour == 0 ? 23 : dtEdit.hour - 1;
-        if (editPos == 1) dtEdit.min = dtEdit.min == 0 ? 59 : dtEdit.min - 1;
-        if (editPos == 2) dtEdit.sec = dtEdit.sec == 0 ? 59 : dtEdit.sec - 1;
+        if (editPos == 0) editTime.hour = editTime.hour == 0 ? 23 : editTime.hour - 1;
+        if (editPos == 1) editTime.min = editTime.min == 0 ? 59 : editTime.min - 1;
+        if (editPos == 2) editTime.sec = editTime.sec == 0 ? 59 : editTime.sec - 1;
         if (editPos == 3) {
           int d = 0;
-          if (dtEdit.month == 2) d = dtEdit.year % 4 == 0 ? 29 : 28;
-          else if (dtEdit.month == 4 || dtEdit.month == 6 || dtEdit.month == 9 || dtEdit.month == 11) d = 30;
+          if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
+          else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
           else d = 31;
-          dtEdit.day = dtEdit.day == 1 ? d : dtEdit.day - 1;
-          dtEdit.weekdayNum = dtEdit.weekdayNum == 0 ? 6 : dtEdit.weekdayNum - 1;
+          editTime.day = editTime.day == 1 ? d : editTime.day - 1;
+          // editTime.weekdayNum = editTime.weekdayNum == 0 ? 6 : editTime.weekdayNum - 1;
         }
-        if (editPos == 4) dtEdit.month = dtEdit.month == 1 ? 12 : dtEdit.month - 1;
-        if (editPos == 5 && dtEdit.year > 0) dtEdit.year--;
+        if (editPos == 4) editTime.month = editTime.month == 1 ? 12 : editTime.month - 1;
+        if (editPos == 5 && editTime.year > 0) editTime.year--;
         break;
       case REMOTE_OK:
         Serial.println("OK");
         if (canSetTime) {
-          rtc.adjust(DateTime(dtEdit.year, dtEdit.month, dtEdit.day, dtEdit.hour, dtEdit.min, dtEdit.sec));
+          RTCDateTime::rtc.adjust(DateTime(editTime.year, editTime.month, editTime.day, editTime.hour, editTime.min, editTime.sec));
           canSetTime = false;
         }
         if (!canEdit) clockEnabled = !clockEnabled;
@@ -118,8 +100,8 @@ void loop() {
         Serial.println("TEST");
         if (canEdit) canSetTime = true;
         if (!clockEnabled) {
-          if (canEdit) dt = copyDateTime(dtEdit);
-          else dtEdit = copyDateTime(dt);
+          if (canEdit) clockTime.copyDateTime(editTime);
+          else editTime.copyDateTime(clockTime);
           canEdit = !canEdit;
           lcd.clear();
         }
@@ -133,7 +115,10 @@ void loop() {
         break;
       case REMOTE_C:
         Serial.println("C");
-        rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+        RTCDateTime::rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+        break;
+      case REMOTE_MENU:
+        Serial.println("MENU");
         break;
       default:
         Serial.println(v, HEX);
@@ -141,29 +126,26 @@ void loop() {
     irrecv.resume();
   }
 
-  if (clockEnabled) dt = getRTCTime();
+  if (clockEnabled) clockTime = RTCDateTime::getRTCTime();
 
-  if (dt.hour == 6 && dt.min == 0 && dt.sec == 0 && clockEnabled) {
+  if (clockTime.hour == 6 && clockTime.min == 0 && clockTime.sec == 0 && clockEnabled) {
     digitalWrite(LED_PIN, HIGH);
     // tone(BUZZER_PIN, 1, BUZZER_TIME_SEC * 1000);
   } else {
     digitalWrite(LED_PIN, LOW);
   }
 
-  lcdMainDisplay(canEdit ? dtEdit : dt);
+  lcdMainDisplay(canEdit ? editTime : clockTime);
   if (canEdit) lcdEditBlink();
 
   delay(200);
 }
 
-void lcdMainDisplay(date_time datetime) {
-  datetime.time_string = newTimeString(datetime);
-  datetime.date_string = newDateString(datetime);
-
+void lcdMainDisplay(RTCDateTime datetime) {
   lcd.setCursor(0, 0);
-  lcd.print(" " + datetime.time_string + "  " + (clockEnabled ? " ON" : "OFF") + " " + (canEdit ? "E" : "C"));
+  lcd.print(" " + datetime.getTimeString() + "  " + (clockEnabled ? " ON" : "OFF") + " " + (canEdit ? "E" : "C"));
   lcd.setCursor(0, 1);
-  lcd.print(datetime.date_string + " " + datetime.weekdayString + " " + "M");
+  lcd.print(datetime.getDateString() + " " + datetime.weekdayString + " " + "M");
 }
 
 void lcdEditBlink() {
@@ -179,56 +161,4 @@ void lcdEditBlink() {
   if (editPos == 5) empty += "  ";
   lcd.setCursor((editPos - 3) * 3, 1);
   lcd.print(empty);
-}
-
-date_time getRTCTime() {
-  DateTime now = rtc.now();
-
-  date_time dt;
-  dt.hour = now.hour();
-  dt.min = now.minute();
-  dt.sec = now.second();
-  dt.weekdayNum = now.dayOfTheWeek();
-  dt.weekdayString = daysOfTheWeek[now.dayOfTheWeek()];
-  dt.day = now.day();
-  dt.month = now.month();
-  dt.year = now.year();
-
-  dt.time_string = newTimeString(dt);
-  dt.date_string = newDateString(dt);
-  dt.full_string = dt.time_string + " " + dt.weekdayString + " " + dt.date_string;
-
-  return dt;
-}
-
-String newTimeString(date_time datetime) {
-  String hs = datetime.hour >= 10 ? String(datetime.hour) : "0" + String(datetime.hour),
-         mis = datetime.min >= 10 ? String(datetime.min) : "0" + String(datetime.min),
-         ss = datetime.sec >= 10 ? String(datetime.sec) : "0" + String(datetime.sec);
-  return hs + ":" + mis + ":" + ss;
-}
-
-String newDateString(date_time datetime) {
-  String ds = datetime.day >= 10 ? String(datetime.day) : "0" + String(datetime.day),
-         ms = datetime.month >= 10 ? String(datetime.month) : "0" + String(datetime.month);
-  return ds + "-" + ms + "-" + String(datetime.year);
-}
-
-date_time copyDateTime(date_time other) {
-  date_time self;
-
-  self.hour = other.hour;
-  self.min = other.min;
-  self.sec = other.sec;
-  self.weekdayNum = other.weekdayNum;
-  self.weekdayString = other.weekdayString;
-  self.day = other.day;
-  self.month = other.month;
-  self.year = other.year;
-
-  self.time_string = newTimeString(self);
-  self.date_string = newDateString(self);
-  self.full_string = self.time_string + " " + self.weekdayString + " " + self.date_string;
-
-  return self;
 }
