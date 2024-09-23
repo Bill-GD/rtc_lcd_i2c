@@ -15,6 +15,8 @@ public:
   static RTCDateTime getRTCTime();
   String getTimeString();
   String getDateString();
+  bool compareTime(int hour, int min, int sec);
+  bool compareDate(int day, int month, int year);
   void copyDateTime(RTCDateTime other);
 };
 

@@ -39,6 +39,14 @@ String RTCDateTime::getDateString() {
   return ds + "-" + ms + "-" + String(this->year);
 }
 
+bool RTCDateTime::compareTime(int hour, int min, int sec) {
+  return this->hour == hour && this->min == min && this->sec == sec;
+}
+
+bool RTCDateTime::compareDate(int day, int month, int year) {
+  return this->day == day && this->month == month && this->year == year;
+}
+
 void RTCDateTime::copyDateTime(RTCDateTime other) {
   this->hour = other.hour;
   this->min = other.min;
