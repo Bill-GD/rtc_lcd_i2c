@@ -8,7 +8,7 @@
 #define IR_PIN 2
 #define LED_PIN 3
 #define BUZZER_PIN 4
-#define BUZZER_TIME_SEC 2
+#define BUZZER_TIME_SEC 10
 #define REMOTE_LEFT 0xFFE01F
 #define REMOTE_RIGHT 0xFF906F
 #define REMOTE_OK 0xFFA857
@@ -22,7 +22,7 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 RTCDateTime clockTime, editTime;
 IRrecv irrecv(IR_PIN);
-bool clockEnabled = true, canEdit = false, canSetTime = false;
+bool clockEnabled = true, canEdit = false, canSetTime = false, canAlarm = false;
 int editPos = 0;
 unsigned int currentTime = 0;
 Buzzer buzzer = Buzzer();
@@ -36,6 +36,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   irrecv.enableIRIn();
   buzzer.setTempo(105);
+  RTCDateTime::rtc.adjust(DateTime(F(__DATE__), F("05:59:55")));
 }
 
 void loop() {
@@ -131,13 +132,16 @@ void loop() {
     }
   }
 
-  if (delayNoDelay(10)) {
-    if (clockTime.compareTime(6, 0, 0)) {
-      digitalWrite(LED_PIN, HIGH);
-      // tone(BUZZER_PIN, 1, BUZZER_TIME_SEC * 1000);
-      buzzer.playMusic(BUZZER_PIN, LED_PIN, true);  // causing problem
+  if (clockTime.compareTime(6, 0, 0)) {
+    canAlarm = true;
+  }
+
+  if (delayNoDelay(10) && canAlarm) {
+    // tone(BUZZER_PIN, 1, BUZZER_TIME_SEC * 1000);
+    if (!delayNoDelay(BUZZER_TIME_SEC * 1000)) {
+      buzzer.playMusic(BUZZER_PIN, LED_PIN, true);
     } else {
-      digitalWrite(LED_PIN, LOW);
+      canAlarm = false;
     }
   }
 

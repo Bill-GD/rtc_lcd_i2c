@@ -17,8 +17,6 @@ private:
     Notes::NOTE_FS5, -16, Notes::NOTE_DS5, 8, Notes::NOTE_DS5, 32, Notes::NOTE_E5, 32, Notes::NOTE_F5, 32,
     Notes::NOTE_F5, 32, Notes::NOTE_FS5, 32, Notes::NOTE_G5, 32, Notes::NOTE_G5, 32, Notes::NOTE_GS5, 32, Notes::NOTE_A5, 16, Notes::NOTE_B5, 8
   };
-  // int songs[1000][3] = { pacman };
-  // int songID = 0;
   // Notes of the melody followed by the duration.
   // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
   // !!negative numbers are used to represent dotted notes,
