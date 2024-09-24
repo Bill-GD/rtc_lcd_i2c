@@ -3,9 +3,9 @@
 RTC_DS1307 RTCDateTime::rtc;
 String daysOfTheWeek[7] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
-void RTCDateTime::initRTC() {
+void RTCDateTime::initRTC(DateTime time) {
   rtc.begin();
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  rtc.adjust(time);
 }
 
 RTCDateTime::RTCDateTime() {}

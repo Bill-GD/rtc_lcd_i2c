@@ -17,7 +17,7 @@
 #define REMOTE_TEST 0xFF22DD
 #define REMOTE_BACK 0xFFC23D
 #define REMOTE_C 0xFFB04F
-#define REMOTE_MENU 0xFF47B8
+#define REMOTE_MENU 0xFFE21D
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 RTCDateTime clockTime, editTime;
@@ -30,7 +30,7 @@ Buzzer buzzer = Buzzer();
 void setup() {
   Serial.begin(9600);
   Serial.println("Running: " + (String)__FILE__);
-  RTCDateTime::initRTC();
+  RTCDateTime::initRTC(DateTime(F(__DATE__), F(__TIME__)));
   lcd.init();
   lcd.backlight();
   pinMode(LED_PIN, OUTPUT);
@@ -39,7 +39,7 @@ void setup() {
 }
 
 void loop() {
-  // if (delayNoDelay(&currentTime, 200)) {
+  if (delayNoDelay(200)) {
     decode_results result;
     if (irrecv.decode(&result)) {
       unsigned long v = result.value;
@@ -129,23 +129,24 @@ void loop() {
       }
       irrecv.resume();
     }
-  // }
+  }
 
-  // if (delayNoDelay(&currentTime, 10)) {
+  if (delayNoDelay(10)) {
     if (clockTime.compareTime(6, 0, 0)) {
       digitalWrite(LED_PIN, HIGH);
       // tone(BUZZER_PIN, 1, BUZZER_TIME_SEC * 1000);
-      // buzzer.playMusic(BUZZER_PIN, LED_PIN, true);  // causing problem
+      buzzer.playMusic(BUZZER_PIN, LED_PIN, true);  // causing problem
     } else {
       digitalWrite(LED_PIN, LOW);
     }
-  // }
+  }
 
-  if (clockEnabled) clockTime = RTCDateTime::getRTCTime();
-  lcdMainDisplay(canEdit ? editTime : clockTime);
-  if (canEdit) lcdEditBlink();
-
-  delay(200);
+  if (delayNoDelay(200)) {
+    if (clockEnabled) clockTime = RTCDateTime::getRTCTime();
+    lcdMainDisplay(canEdit ? editTime : clockTime);
+    if (canEdit) lcdEditBlink();
+  }
+  delay(50);
 }
 
 void lcdMainDisplay(RTCDateTime datetime) {
@@ -156,16 +157,17 @@ void lcdMainDisplay(RTCDateTime datetime) {
 }
 
 void lcdEditBlink() {
-  // blink time
-  delay(200);
-  if (editPos < 3) {
-    lcd.setCursor(editPos * 3 + 1, 0);
-    lcd.print("  ");
-    return;
+  if (!delayNoDelay(200)) {
+    // blink time
+    if (editPos < 3) {
+      lcd.setCursor(editPos * 3 + 1, 0);
+      lcd.print("  ");
+      return;
+    }
+    // blink date
+    String empty = "  ";
+    if (editPos == 5) empty += "  ";
+    lcd.setCursor((editPos - 3) * 3, 1);
+    lcd.print(empty);
   }
-  // blink date
-  String empty = "  ";
-  if (editPos == 5) empty += "  ";
-  lcd.setCursor((editPos - 3) * 3, 1);
-  lcd.print(empty);
 }

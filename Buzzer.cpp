@@ -6,11 +6,7 @@
 
 class Buzzer {
 private:
-  // Notes of the melody followed by the duration.
-  // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
-  // !!negative numbers are used to represent dotted notes,
-  // so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
-  int melody[500] PROGMEM = {
+  int pacman[100] = {
     // Pacman
     // Score available at https://musescore.com/user/85429/scores/107109
     Notes::NOTE_B4, 16, Notes::NOTE_B5, 16, Notes::NOTE_FS5, 16, Notes::NOTE_DS5, 16,  //1
@@ -21,8 +17,16 @@ private:
     Notes::NOTE_FS5, -16, Notes::NOTE_DS5, 8, Notes::NOTE_DS5, 32, Notes::NOTE_E5, 32, Notes::NOTE_F5, 32,
     Notes::NOTE_F5, 32, Notes::NOTE_FS5, 32, Notes::NOTE_G5, 32, Notes::NOTE_G5, 32, Notes::NOTE_GS5, 32, Notes::NOTE_A5, 16, Notes::NOTE_B5, 8
   };
-  int tempo = 100, wholenote = (60000 * 4) / tempo;
-  int notes = sizeof(melody) / sizeof(melody[0]) / 2;
+  // int songs[1000][3] = { pacman };
+  // int songID = 0;
+  // Notes of the melody followed by the duration.
+  // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
+  // !!negative numbers are used to represent dotted notes,
+  // so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
+  int tempo = 100;
+  int wholenote = (60000 * 4) / tempo;
+  int notes = sizeof(pacman) / sizeof(pacman[0]) / 2;
+  int currentNote = 0;
 
 public:
   /** The higher the tempo, the faster the song is */
@@ -32,35 +36,35 @@ public:
   }
 
   void playMusic(int buzzerPin, int ledPin = 3, bool playLed = false) {
-    for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
-      int noteDuration;
-      int divider = melody[thisNote + 1];  // duration of each note
-
-      if (playLed) digitalWrite(ledPin, HIGH);
-
-      if (divider > 0) {
-        // regular note, just proceed
-        noteDuration = (wholenote) / divider;
-      } else if (divider < 0) {
-        // dotted notes are represented with negative durations!!
-        noteDuration = (wholenote) / abs(divider);
-        noteDuration *= 1.5;  // increases the duration in half for dotted notes
-      }
-
-      tone(buzzerPin, melody[thisNote], noteDuration * 0.9);  // play 90% of duration
-
-      delay(noteDuration / 2);
-      if (playLed) digitalWrite(ledPin, LOW);
-      delay(noteDuration / 2);
-
-      // stop the waveform generation before the next note.
-      noTone(buzzerPin);
+    if (currentNote >= notes * 2) {
+      this->currentNote = 0;
     }
-  }
+    // for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
+    int noteDuration;
+    int divider = pacman[currentNote + 1];  // duration of each note
 
-  // Buzzer() :
-  //   melody
-  // {}
+    if (playLed) digitalWrite(ledPin, HIGH);
+
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5;  // increases the duration in half for dotted notes
+    }
+
+    tone(buzzerPin, pacman[currentNote], noteDuration * 0.9);  // play 90% of duration
+
+    delay(noteDuration / 2);
+    if (playLed) digitalWrite(ledPin, LOW);
+    delay(noteDuration / 2);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzerPin);
+    // }
+    currentNote += 2;
+  }
 };
 
 #endif

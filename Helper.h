@@ -3,6 +3,6 @@
 
 #include "Arduino.h"
 
-bool delayNoDelay(unsigned int *current, unsigned int ms);
+bool delayNoDelay(unsigned int ms);
 
 #endif

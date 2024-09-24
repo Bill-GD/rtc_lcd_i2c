@@ -9,7 +9,7 @@ public:
   String weekdayString;
   static RTC_DS1307 rtc;
 
-  static void initRTC();
+  static void initRTC(DateTime time);
   RTCDateTime();
   RTCDateTime(int hour, int min, int sec, int dayOfTheWeek, int day, int month, int year);
   static RTCDateTime getRTCTime();
