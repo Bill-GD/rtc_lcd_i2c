@@ -6,70 +6,103 @@
 
 class Buzzer {
 private:
-  // 410 bytes
-  int melody[540] PROGMEM = {
-    // The Godfather theme
-    // Score available at https://musescore.com/user/35463/scores/55160
-    Notes::REST, 4, Notes::REST, 8, Notes::REST, 8, Notes::REST, 8, Notes::NOTE_E4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8,  //1
-    Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8, Notes::NOTE_A4, 8, Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_F4, 8, Notes::NOTE_G4, 8,
-    Notes::NOTE_E4, 2, Notes::NOTE_E4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8,
-    Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8, Notes::NOTE_A4, 8, Notes::NOTE_E4, 8, Notes::NOTE_DS4, 8,
+  // the length must be the exact number of notes * 2
+  uint8_t melody[680] PROGMEM = {
+    // rick roll here
+    Notes::NOTE_D5,-4, Notes::NOTE_E5,-4, Notes::NOTE_A4,4, //1
+    Notes::NOTE_E5,-4, Notes::NOTE_FS5,-4, Notes::NOTE_A5,16, Notes::NOTE_G5,16, Notes::NOTE_FS5,8,
+    Notes::NOTE_D5,-4, Notes::NOTE_E5,-4, Notes::NOTE_A4,2,
+    Notes::NOTE_A4,16, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,8, Notes::NOTE_D5,16,
+    Notes::NOTE_D5,-4, Notes::NOTE_E5,-4, Notes::NOTE_A4,4, //repeat from 1
+    Notes::NOTE_E5,-4, Notes::NOTE_FS5,-4, Notes::NOTE_A5,16, Notes::NOTE_G5,16, Notes::NOTE_FS5,8,
+    Notes::NOTE_D5,-4, Notes::NOTE_E5,-4, Notes::NOTE_A4,2,
+    Notes::NOTE_A4,16, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,8, Notes::NOTE_D5,16,
+    Notes::REST,4, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_D5,8, Notes::NOTE_E5,8, Notes::NOTE_CS5,-8,
+    Notes::NOTE_B4,16, Notes::NOTE_A4,2, Notes::REST,4,
 
-    Notes::NOTE_D4, 2, Notes::NOTE_D4, 8, Notes::NOTE_F4, 8, Notes::NOTE_GS4, 8,  //5
-    Notes::NOTE_B4, 2, Notes::NOTE_D4, 8, Notes::NOTE_F4, 8, Notes::NOTE_GS4, 8,
-    Notes::NOTE_A4, 2, Notes::NOTE_C4, 8, Notes::NOTE_C4, 8, Notes::NOTE_G4, 8,
-    Notes::NOTE_F4, 8, Notes::NOTE_E4, 8, Notes::NOTE_G4, 8, Notes::NOTE_F4, 8, Notes::NOTE_F4, 8, Notes::NOTE_E4, 8, Notes::NOTE_E4, 8, Notes::NOTE_GS4, 8,
+    Notes::REST,8, Notes::NOTE_B4,8, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,4, Notes::NOTE_A4,8, //7
+    Notes::NOTE_A5,8, Notes::REST,8, Notes::NOTE_A5,8, Notes::NOTE_E5,-4, Notes::REST,4,
+    Notes::NOTE_B4,8, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8, Notes::NOTE_D5,8, Notes::NOTE_E5,8, Notes::REST,8,
+    Notes::REST,8, Notes::NOTE_CS5,8, Notes::NOTE_B4,8, Notes::NOTE_A4,-4, Notes::REST,4,
+    Notes::REST,8, Notes::NOTE_B4,8, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8, Notes::NOTE_A4,4,
+    Notes::NOTE_E5,8, Notes::NOTE_E5,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_E5,4, Notes::REST,4,
 
-    Notes::NOTE_A4, 2, Notes::REST, 8, Notes::NOTE_A4, 8, Notes::NOTE_A4, 8, Notes::NOTE_GS4, 8,  //9
-    Notes::NOTE_G4, 2, Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_F4, 8,
-    Notes::NOTE_E4, 2, Notes::NOTE_E4, 8, Notes::NOTE_G4, 8, Notes::NOTE_E4, 8,
-    Notes::NOTE_D4, 2, Notes::NOTE_D4, 8, Notes::NOTE_D4, 8, Notes::NOTE_F4, 8, Notes::NOTE_DS4, 8,
+    Notes::NOTE_D5,2, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_D5,8, //13
+    Notes::NOTE_E5,8, Notes::NOTE_E5,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_E5,4, Notes::NOTE_A4,4,
+    Notes::REST,2, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8,
+    Notes::REST,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_FS5,-8, Notes::NOTE_FS5,-8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
 
-    Notes::NOTE_E4, 2, Notes::REST, 8, Notes::NOTE_E4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8,  //13
+    Notes::NOTE_E5,-8, Notes::NOTE_E5,-8, Notes::NOTE_D5,-8, Notes::NOTE_CS5,16, Notes::NOTE_B4,-8, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16, //18
+    Notes::NOTE_D5,4, Notes::NOTE_E5,8, Notes::NOTE_CS5,-8, Notes::NOTE_B4,16, Notes::NOTE_A4,8, Notes::NOTE_A4,8, Notes::NOTE_A4,8,
+    Notes::NOTE_E5,4, Notes::NOTE_D5,2, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_FS5,-8, Notes::NOTE_FS5,-8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_A5,4, Notes::NOTE_CS5,8, Notes::NOTE_D5,-8, Notes::NOTE_CS5,16, Notes::NOTE_B4,8, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
 
-    //repeats from 2
-    Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8, Notes::NOTE_A4, 8, Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_F4, 8, Notes::NOTE_G4, 8,  //2
-    Notes::NOTE_E4, 2, Notes::NOTE_E4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8,
-    Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8, Notes::NOTE_A4, 8, Notes::NOTE_C5, 8, Notes::NOTE_A4, 8, Notes::NOTE_E4, 8, Notes::NOTE_DS4, 8,
+    Notes::NOTE_D5,4, Notes::NOTE_E5,8, Notes::NOTE_CS5,-8, Notes::NOTE_B4,16, Notes::NOTE_A4,4, Notes::NOTE_A4,8,  //23
+    Notes::NOTE_E5,4, Notes::NOTE_D5,2, Notes::REST,4,
+    Notes::REST,8, Notes::NOTE_B4,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8, Notes::NOTE_D5,8, Notes::NOTE_E5,4, Notes::REST,8,
+    Notes::REST,8, Notes::NOTE_CS5,8, Notes::NOTE_B4,8, Notes::NOTE_A4,-4, Notes::REST,4,
+    Notes::REST,8, Notes::NOTE_B4,8, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8, Notes::NOTE_A4,4,
+    Notes::REST,8, Notes::NOTE_A5,8, Notes::NOTE_A5,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_E5,8, Notes::NOTE_D5,8,
 
-    Notes::NOTE_D4, 2, Notes::NOTE_D4, 8, Notes::NOTE_F4, 8, Notes::NOTE_GS4, 8,  //5
-    Notes::NOTE_B4, 2, Notes::NOTE_D4, 8, Notes::NOTE_F4, 8, Notes::NOTE_GS4, 8,
-    Notes::NOTE_A4, 2, Notes::NOTE_C4, 8, Notes::NOTE_C4, 8, Notes::NOTE_G4, 8,
-    Notes::NOTE_F4, 8, Notes::NOTE_E4, 8, Notes::NOTE_G4, 8, Notes::NOTE_F4, 8, Notes::NOTE_F4, 8, Notes::NOTE_E4, 8, Notes::NOTE_E4, 8, Notes::NOTE_GS4, 8,
+    Notes::REST,8, Notes::NOTE_A4,8, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8, //29
+    Notes::REST,8, Notes::NOTE_CS5,8, Notes::NOTE_B4,8, Notes::NOTE_A4,-4, Notes::REST,4,
+    Notes::NOTE_B4,8, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8, Notes::NOTE_A4,4, Notes::REST,8,
+    Notes::REST,8, Notes::NOTE_E5,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,4, Notes::NOTE_E5,-4,
+    Notes::NOTE_D5,2, Notes::NOTE_D5,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_E5,4,
+    Notes::NOTE_E5,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_E5,8, Notes::NOTE_A4,8, Notes::NOTE_A4,4,
 
-    Notes::NOTE_A4, 2, Notes::REST, 8, Notes::NOTE_A4, 8, Notes::NOTE_A4, 8, Notes::NOTE_GS4, 8,  //9
-    Notes::NOTE_G4, 2, Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_F4, 8,
-    Notes::NOTE_E4, 2, Notes::NOTE_E4, 8, Notes::NOTE_G4, 8, Notes::NOTE_E4, 8,
-    Notes::NOTE_D4, 2, Notes::NOTE_D4, 8, Notes::NOTE_D4, 8, Notes::NOTE_F4, 8, Notes::NOTE_DS4, 8,
+    Notes::REST,-4, Notes::NOTE_A4,8, Notes::NOTE_B4,8, Notes::NOTE_CS5,8, Notes::NOTE_D5,8, Notes::NOTE_B4,8, //35
+    Notes::REST,8, Notes::NOTE_E5,8, Notes::NOTE_FS5,8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_FS5,-8, Notes::NOTE_FS5,-8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_E5,-8, Notes::NOTE_E5,-8, Notes::NOTE_D5,-8, Notes::NOTE_CS5,16, Notes::NOTE_B4,8, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_D5,4, Notes::NOTE_E5,8, Notes::NOTE_CS5,-8, Notes::NOTE_B4,16, Notes::NOTE_A4,4, Notes::NOTE_A4,8,
 
-    Notes::NOTE_E4, 2  //13
+    Notes::NOTE_E5,4, Notes::NOTE_D5,2, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16, //40
+    Notes::NOTE_FS5,-8, Notes::NOTE_FS5,-8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_A5,4, Notes::NOTE_CS5,8, Notes::NOTE_D5,-8, Notes::NOTE_CS5,16, Notes::NOTE_B4,8, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_D5,4, Notes::NOTE_E5,8, Notes::NOTE_CS5,-8, Notes::NOTE_B4,16, Notes::NOTE_A4,4, Notes::NOTE_A4,8,
+    Notes::NOTE_E5,4, Notes::NOTE_D5,2, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+
+    Notes::NOTE_FS5,-8, Notes::NOTE_FS5,-8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16, //45
+    Notes::NOTE_A5,4, Notes::NOTE_CS5,8, Notes::NOTE_D5,-8, Notes::NOTE_CS5,16, Notes::NOTE_B4,8, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_D5,4, Notes::NOTE_E5,8, Notes::NOTE_CS5,-8, Notes::NOTE_B4,16, Notes::NOTE_A4,4, Notes::NOTE_A4,8,
+    Notes::NOTE_E5,4, Notes::NOTE_D5,2, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_FS5,-8, Notes::NOTE_FS5,-8, Notes::NOTE_E5,-4, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16, //45
+
+    Notes::NOTE_A5,4, Notes::NOTE_CS5,8, Notes::NOTE_D5,-8, Notes::NOTE_CS5,16, Notes::NOTE_B4,8, Notes::NOTE_A4,16, Notes::NOTE_B4,16, Notes::NOTE_D5,16, Notes::NOTE_B4,16,
+    Notes::NOTE_D5,4, Notes::NOTE_E5,8, Notes::NOTE_CS5,-8, Notes::NOTE_B4,16, Notes::NOTE_A4,4, Notes::NOTE_A4,8,
+
+    Notes::NOTE_E5,4, Notes::NOTE_D5,2, Notes::REST,4
   };
   // Notes of the melody followed by the duration.
   // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
   // !!negative numbers are used to represent dotted notes,
   // so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
-  int tempo = 80;
+  uint8_t tempo = 114;
   int wholenote = (60000 * 4) / tempo;
   int notes = sizeof(melody) / sizeof(melody[0]) / 2;
-  int currentNote = 0, noteDuration = 0;
+  uint8_t currentNote = 0, noteDuration = 0;
+  // uint8_t noteDuration = 0;
 
 public:
   /** The higher the tempo, the faster the song is */
-  void setTempo(int tempo) {
+  void setTempo(uint8_t tempo) {
     tempo = tempo;
     wholenote = (60000 * 4) / tempo;
   }
 
-  bool playMusic(int buzzerPin, int ledPin = 3, bool playLed = false) {
+  // bool playMusic(uint8_t buzzerPin, uint8_t currentNote, uint8_t ledPin = 3, bool playLed = false) {
+  bool playMusic(uint8_t buzzerPin, uint8_t ledPin = 3, bool playLed = false) {
     if (currentNote >= notes * 2) {
       currentNote = 0;
       noteDuration = 0;
       return false;
     }
-    // for (int thisNote = 0; thisNote < notes * 2; thisNote = thisNote + 2) {
-    int divider = melody[currentNote + 1];  // duration of each note
+    uint8_t divider = melody[currentNote + 1];  // duration of each note
     Serial.print(F("Playing note: "));
-    Serial.print(melody[currentNote + 1]);
+    Serial.print(melody[currentNote]);
     Serial.print(F(" ("));
     Serial.print(noteDuration);
     Serial.println(F(")"));
@@ -93,7 +126,6 @@ public:
 
     // stop the waveform generation before the next note.
     noTone(buzzerPin);
-    // }
     currentNote += 2;
     return true;
   }
