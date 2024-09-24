@@ -45,88 +45,88 @@ void loop() {
     if (irrecv.decode(&result)) {
       unsigned long v = result.value;
       switch (v) {
-        case REMOTE_UP:
-          Serial.println("UP");
-          if (!canEdit) break;
-          if (editPos == 0) editTime.hour = editTime.hour == 23 ? 0 : editTime.hour + 1;
-          if (editPos == 1) editTime.min = editTime.min == 59 ? 0 : editTime.min + 1;
-          if (editPos == 2) editTime.sec = editTime.sec == 59 ? 0 : editTime.sec + 1;
-          if (editPos == 3) {
-            int d = 0;
-            if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
-            else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
-            else d = 31;
-            editTime.day = editTime.day == d ? 1 : editTime.day + 1;
-          }
-          if (editPos == 4) editTime.month = editTime.month == 12 ? 1 : editTime.month + 1;
-          if (editPos == 5) editTime.year++;
-          break;
-        case REMOTE_DOWN:
-          Serial.println("DOWN");
-          if (!canEdit) break;
-          if (editPos == 0) editTime.hour = editTime.hour == 0 ? 23 : editTime.hour - 1;
-          if (editPos == 1) editTime.min = editTime.min == 0 ? 59 : editTime.min - 1;
-          if (editPos == 2) editTime.sec = editTime.sec == 0 ? 59 : editTime.sec - 1;
-          if (editPos == 3) {
-            int d = 0;
-            if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
-            else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
-            else d = 31;
-            editTime.day = editTime.day == 1 ? d : editTime.day - 1;
-          }
-          if (editPos == 4) editTime.month = editTime.month == 1 ? 12 : editTime.month - 1;
-          if (editPos == 5 && editTime.year > 0) editTime.year--;
-          break;
-        case REMOTE_OK:
-          Serial.println("OK");
-          if (canSetTime) {
-            RTCDateTime::rtc.adjust(DateTime(editTime.year, editTime.month, editTime.day, editTime.hour, editTime.min, editTime.sec));
-            canSetTime = false;
-          }
-          if (!canEdit) clockEnabled = !clockEnabled;
-          break;
-        case REMOTE_LEFT:
-          Serial.println("LEFT");
-          if (canEdit && editPos > 0) {
-            if (editPos == 3) lcd.clear();
-            editPos--;
-          }
-          Serial.println("editPos: " + (String)editPos);
-          break;
-        case REMOTE_RIGHT:
-          Serial.println("RIGHT");
-          if (canEdit && editPos < 5) {
-            if (editPos == 2) lcd.clear();
-            editPos++;
-          }
-          Serial.println("editPos: " + (String)editPos);
-          break;
-        case REMOTE_TEST:
-          Serial.println("TEST");
-          if (canEdit) canSetTime = true;
-          if (!clockEnabled) {
-            if (canEdit) clockTime.copyDateTime(editTime);
-            else editTime.copyDateTime(clockTime);
-            canEdit = !canEdit;
-            lcd.clear();
-          }
-          break;
-        case REMOTE_BACK:
-          Serial.println("BACK");
-          if (canEdit && !clockEnabled) {
-            canEdit = false;
-            lcd.clear();
-          }
-          break;
-        case REMOTE_C:
-          Serial.println("C");
-          RTCDateTime::rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-          break;
-        case REMOTE_MENU:
-          Serial.println("MENU");
-          break;
-        default:
-          Serial.println(v, HEX);
+      case REMOTE_UP:
+        Serial.println("UP");
+        if (!canEdit) break;
+        if (editPos == 0) editTime.hour = editTime.hour == 23 ? 0 : editTime.hour + 1;
+        if (editPos == 1) editTime.min = editTime.min == 59 ? 0 : editTime.min + 1;
+        if (editPos == 2) editTime.sec = editTime.sec == 59 ? 0 : editTime.sec + 1;
+        if (editPos == 3) {
+          int d = 0;
+          if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
+          else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
+          else d = 31;
+          editTime.day = editTime.day == d ? 1 : editTime.day + 1;
+        }
+        if (editPos == 4) editTime.month = editTime.month == 12 ? 1 : editTime.month + 1;
+        if (editPos == 5) editTime.year++;
+        break;
+      case REMOTE_DOWN:
+        Serial.println("DOWN");
+        if (!canEdit) break;
+        if (editPos == 0) editTime.hour = editTime.hour == 0 ? 23 : editTime.hour - 1;
+        if (editPos == 1) editTime.min = editTime.min == 0 ? 59 : editTime.min - 1;
+        if (editPos == 2) editTime.sec = editTime.sec == 0 ? 59 : editTime.sec - 1;
+        if (editPos == 3) {
+          int d = 0;
+          if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
+          else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
+          else d = 31;
+          editTime.day = editTime.day == 1 ? d : editTime.day - 1;
+        }
+        if (editPos == 4) editTime.month = editTime.month == 1 ? 12 : editTime.month - 1;
+        if (editPos == 5 && editTime.year > 0) editTime.year--;
+        break;
+      case REMOTE_OK:
+        Serial.println("OK");
+        if (canSetTime) {
+          RTCDateTime::rtc.adjust(DateTime(editTime.year, editTime.month, editTime.day, editTime.hour, editTime.min, editTime.sec));
+          canSetTime = false;
+        }
+        if (!canEdit) clockEnabled = !clockEnabled;
+        break;
+      case REMOTE_LEFT:
+        Serial.println("LEFT");
+        if (canEdit && editPos > 0) {
+          if (editPos == 3) lcd.clear();
+          editPos--;
+        }
+        Serial.println("editPos: " + (String)editPos);
+        break;
+      case REMOTE_RIGHT:
+        Serial.println("RIGHT");
+        if (canEdit && editPos < 5) {
+          if (editPos == 2) lcd.clear();
+          editPos++;
+        }
+        Serial.println("editPos: " + (String)editPos);
+        break;
+      case REMOTE_TEST:
+        Serial.println("TEST");
+        if (canEdit) canSetTime = true;
+        if (!clockEnabled) {
+          if (canEdit) clockTime.copyDateTime(editTime);
+          else editTime.copyDateTime(clockTime);
+          canEdit = !canEdit;
+          lcd.clear();
+        }
+        break;
+      case REMOTE_BACK:
+        Serial.println("BACK");
+        if (canEdit && !clockEnabled) {
+          canEdit = false;
+          lcd.clear();
+        }
+        break;
+      case REMOTE_C:
+        Serial.println("C");
+        RTCDateTime::rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+        break;
+      case REMOTE_MENU:
+        Serial.println("MENU");
+        break;
+      default:
+        Serial.println(v, HEX);
       }
       irrecv.resume();
     }
@@ -138,11 +138,8 @@ void loop() {
 
   if (delayNoDelay(10) && canAlarm) {
     // tone(BUZZER_PIN, 1, BUZZER_TIME_SEC * 1000);
-    if (!delayNoDelay(BUZZER_TIME_SEC * 1000)) {
-      buzzer.playMusic(BUZZER_PIN, LED_PIN, true);
-    } else {
-      canAlarm = false;
-    }
+    bool canPlay = buzzer.playMusic(BUZZER_PIN, LED_PIN, true);
+    canAlarm = canPlay;
   }
 
   if (delayNoDelay(200)) {
