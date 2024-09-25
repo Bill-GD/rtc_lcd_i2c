@@ -16,9 +16,7 @@ bool delayNoDelay(unsigned int ms) {
     if (delays[i].delayDuration == ms) {
       if (now - delays[i].lastExecutionTime >= ms) {
         delays[i].lastExecutionTime = now;
-        // Serial.print(F("Delayed: "));
-        // Serial.print(ms);
-        // Serial.println(F("ms"));
+        // Serial.print(F("Delayed: " (String)ms "ms"));
         return true;
       }
     } else if (delays[i].delayDuration == 0) { // find an empty slot to add new delay

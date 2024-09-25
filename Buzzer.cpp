@@ -6,8 +6,10 @@
 
 class Buzzer {
 private:
+  // The higher the modifier, the faster the song
+  int speedModifier = 4;
   // the length must be the exact number of notes * 2
-  uint8_t melody[680] PROGMEM = {
+  int melody[680] PROGMEM = {
     // rick roll here
     Notes::NOTE_D5,-4, Notes::NOTE_E5,-4, Notes::NOTE_A4,4, //1
     Notes::NOTE_E5,-4, Notes::NOTE_FS5,-4, Notes::NOTE_A5,16, Notes::NOTE_G5,16, Notes::NOTE_FS5,8,
@@ -80,27 +82,28 @@ private:
   // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
   // !!negative numbers are used to represent dotted notes,
   // so -4 means a dotted quarter note, that is, a quarter plus an eighteenth!!
-  uint8_t tempo = 114;
-  int wholenote = (60000 * 4) / tempo;
+  int tempo = 114;
+  int wholenote = (60000 / speedModifier) / tempo;
   int notes = sizeof(melody) / sizeof(melody[0]) / 2;
-  uint8_t currentNote = 0, noteDuration = 0;
-  // uint8_t noteDuration = 0;
+  int currentNote = 0, noteDuration = 0;
+  // int noteDuration = 0;
 
 public:
   /** The higher the tempo, the faster the song is */
-  void setTempo(uint8_t tempo) {
+  void setTempo(int tempo) {
     tempo = tempo;
-    wholenote = (60000 * 4) / tempo;
+    wholenote = (60000 / speedModifier) / tempo;
   }
 
-  // bool playMusic(uint8_t buzzerPin, uint8_t currentNote, uint8_t ledPin = 3, bool playLed = false) {
-  bool playMusic(uint8_t buzzerPin, uint8_t ledPin = 3, bool playLed = false) {
+  // bool playMusic(int buzzerPin, int currentNote, int ledPin = 3, bool playLed = false) {
+  bool playMusic(int buzzerPin, int ledPin = 3, bool playLed = false) {
     if (currentNote >= notes * 2) {
       currentNote = 0;
       noteDuration = 0;
       return false;
     }
-    uint8_t divider = melody[currentNote + 1];  // duration of each note
+    
+    int divider = melody[currentNote + 1];  // duration of each note
     Serial.print(F("Playing note: "));
     Serial.print(melody[currentNote]);
     Serial.print(F(" ("));
