@@ -28,19 +28,23 @@ RTCDateTime RTCDateTime::getRTCTime() {
 
 String RTCDateTime::getTimeString() {
   String hs = this->hour >= 10 ? String(this->hour) : "0" + String(this->hour),
-    ms = this->min >= 10 ? String(this->min) : "0" + String(this->min),
-    ss = this->sec >= 10 ? String(this->sec) : "0" + String(this->sec);
+         ms = this->min >= 10 ? String(this->min) : "0" + String(this->min),
+         ss = this->sec >= 10 ? String(this->sec) : "0" + String(this->sec);
   return hs + ":" + ms + ":" + ss;
 }
 
 String RTCDateTime::getDateString() {
   String ds = this->day >= 10 ? String(this->day) : "0" + String(this->day),
-    ms = this->month >= 10 ? String(this->month) : "0" + String(this->month);
+         ms = this->month >= 10 ? String(this->month) : "0" + String(this->month);
   return ds + "-" + ms + "-" + String(this->year);
 }
 
 bool RTCDateTime::compareTime(int hour, int min, int sec) {
   return this->hour == hour && this->min == min && this->sec == sec;
+}
+
+bool RTCDateTime::compareTime(AlarmTime alarm) {
+  return this->hour == alarm.hour && this->min == alarm.min && this->sec == alarm.sec;
 }
 
 bool RTCDateTime::compareDate(int day, int month, int year) {
@@ -56,4 +60,23 @@ void RTCDateTime::copyDateTime(RTCDateTime other) {
   this->day = other.day;
   this->month = other.month;
   this->year = other.year;
+}
+
+AlarmTime::AlarmTime(int hour, int min, int sec) {
+  this->hour = hour;
+  this->min = min;
+  this->sec = sec;
+}
+
+String AlarmTime::getTimeString() {
+  String hs = this->hour >= 10 ? String(this->hour) : "0" + String(this->hour),
+         ms = this->min >= 10 ? String(this->min) : "0" + String(this->min),
+         ss = this->sec >= 10 ? String(this->sec) : "0" + String(this->sec);
+  return hs + ":" + ms + ":" + ss;
+}
+
+void AlarmTime::copyTime(AlarmTime other) {
+  this->hour = other.hour;
+  this->min = other.min;
+  this->sec = other.sec;
 }

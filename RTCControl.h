@@ -3,6 +3,16 @@
 
 #include "RTClib.h"
 
+class AlarmTime {
+public:
+  int hour;
+  int min;
+  int sec;
+  AlarmTime(int hour, int min, int sec);
+  String getTimeString();
+  void copyTime(AlarmTime other);
+};
+
 class RTCDateTime {
 public:
   int hour, min, sec, weekdayNum, day, month, year;
@@ -16,6 +26,7 @@ public:
   String getTimeString();
   String getDateString();
   bool compareTime(int hour, int min, int sec);
+  bool compareTime(AlarmTime alarm);
   bool compareDate(int day, int month, int year);
   void copyDateTime(RTCDateTime other);
 };
