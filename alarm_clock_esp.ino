@@ -238,9 +238,9 @@ void lcdClockEditBlink() {
 
 void lcdShowMenu() {
   lcd.setCursor(0, 0);
-  lcd.print(F("1. Clock"));
+  lcd.print(F("1. Clock  "));
   lcd.setCursor(0, 1);
-  lcd.print(F("2. Alarm"));
+  lcd.print(F("2. Alarm  "));
 
   lcd.setCursor(15, 1);
   lcd.print(F("M"));
