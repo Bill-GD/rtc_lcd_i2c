@@ -253,8 +253,7 @@ void lcdEditAlarm(AlarmTime alarm) {
   lcd.setCursor(1, 0);
   lcd.print(F("Edit alarm:"));
   lcd.setCursor(1, 1);
-  lcd.print(F(alarm.getTimeString()));
-
+  lcd.print(alarm.getTimeString());
 }
 
 void lcdAlarmEditBlink() {
