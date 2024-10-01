@@ -13,7 +13,6 @@
 const uint8_t IR_PIN = 4;
 const uint8_t LED_PIN = 23;
 const uint8_t BUZZER_PIN = 32;
-const uint8_t BUZZER_TIME_SEC = 10;
 #define REMOTE_LEFT 0x07
 #define REMOTE_RIGHT 0x09
 #define REMOTE_OK 0x15
@@ -63,7 +62,10 @@ void loop() {
             RTCDateTime::rtc.adjust(DateTime(editTime.year, editTime.month, editTime.day, editTime.hour, editTime.min, editTime.sec));
             canSetTime = false;
           }
-          if (!canEditTime) clockEnabled = !clockEnabled;
+          if (!canEditTime) {
+            clockEnabled = !clockEnabled;
+            Serial.print(clockEnabled ? "ON" : "OFF");
+          }
           break;
         case REMOTE_UP:
           Serial.println("UP");
@@ -191,6 +193,7 @@ void loop() {
   if (delayNoDelay(10)) {
     if (clockTime.compareTime(currentAlarmTime)) {
       canAlarm = true;
+      Serial.println("Alarm!! " + currentAlarmTime.getTimeString());
     }
     if (canAlarm) {
       bool canPlay = buzzer.playMusic(BUZZER_PIN, LED_PIN, true);
@@ -209,6 +212,10 @@ void loop() {
       lcdDisplayClock(canEditTime ? editTime : clockTime);
       if (canEditTime) lcdClockEditBlink();
     }
+  }
+
+  if (delayNoDelay(60000)) {
+    Serial.println("Time: " + clockTime.getTimeString() + " " + clockTime.getDateString());
   }
   delay(50);
 }
