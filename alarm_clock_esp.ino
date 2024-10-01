@@ -52,7 +52,7 @@ void setup() {
 }
 
 void loop() {
-  if (delayNoDelay(200)) {
+  if (delayNoDelay(100)) {
     if (IrReceiver.decode()) {
       unsigned long v = IrReceiver.decodedIRData.command;
       switch (v) {
@@ -198,7 +198,7 @@ void loop() {
     }
   }
 
-  if (delayNoDelay(200)) {
+  if (delayNoDelay(100)) {
     if (clockEnabled) clockTime = RTCDateTime::getRTCTime();
     if (showMenu) {
       lcdShowMenu();
@@ -221,19 +221,18 @@ void lcdDisplayClock(RTCDateTime datetime) {
 }
 
 void lcdClockEditBlink() {
-  if (!delayNoDelay(200)) {
-    // blink time
-    if (editPos < 3) {
-      lcd.setCursor(editPos * 3 + 1, 0);
-      lcd.print("  ");
-      return;
-    }
-    // blink date
-    String empty = "  ";
-    if (editPos == 5) empty += "  ";
-    lcd.setCursor((editPos - 3) * 3, 1);
-    lcd.print(empty);
+  if (delayNoDelay(200)) return;
+  // blink time
+  if (editPos < 3) {
+    lcd.setCursor(editPos * 3 + 1, 0);
+    lcd.print("  ");
+    return;
   }
+  // blink date
+  String empty = "  ";
+  if (editPos == 5) empty += "  ";
+  lcd.setCursor((editPos - 3) * 3, 1);
+  lcd.print(empty);
 }
 
 void lcdShowMenu() {
@@ -260,7 +259,7 @@ void lcdAlarmEditBlink() {
   if (delayNoDelay(200)) return;
 
   if (editPos < 3) {
-    lcd.setCursor(editPos * 3 + 1, 0);
+    lcd.setCursor(editPos * 3 + 1, 1);
     lcd.print("  ");
   }
 }
