@@ -23,7 +23,9 @@ RTCDateTime::RTCDateTime(int hour, int min, int sec, int dayOfTheWeek, int day, 
 
 RTCDateTime RTCDateTime::getRTCTime() {
   DateTime now = rtc.now();
-  return RTCDateTime(now.hour(), now.minute(), now.second(), now.dayOfTheWeek(), now.day(), now.month(), now.year());
+  RTCDateTime r = RTCDateTime(now.hour(), now.minute(), now.second(), now.dayOfTheWeek(), now.day(), now.month(), now.year());
+  // Serial.println(r.getTimeString() + " " + r.getDateString());
+  return r;
 }
 
 String RTCDateTime::getTimeString() {
@@ -66,6 +68,7 @@ AlarmTime::AlarmTime(int hour, int min, int sec) {
   this->hour = hour;
   this->min = min;
   this->sec = sec;
+  Serial.println("Alarm at: " + this->getTimeString());
 }
 
 String AlarmTime::getTimeString() {
@@ -79,4 +82,5 @@ void AlarmTime::copyTime(AlarmTime other) {
   this->hour = other.hour;
   this->min = other.min;
   this->sec = other.sec;
+  Serial.println("Alarm at: " + other.getTimeString());
 }

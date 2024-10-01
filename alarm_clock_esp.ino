@@ -3,26 +3,26 @@
 
 #include "LiquidCrystal_I2C.h"
 // #include "IRremote.h"
-#include <IRremote.hpp>
+#include "IRremote.hpp"
 
 #include "Buzzer.cpp"
 #include "Helper.h"
 #include "RTCControl.h"
 
 // #define IR_RECEIVE_PIN 15
-const uint8_t IR_PIN = 2;
+const uint8_t IR_PIN = 4;
 const uint8_t LED_PIN = 23;
 const uint8_t BUZZER_PIN = 32;
 const uint8_t BUZZER_TIME_SEC = 10;
-#define REMOTE_LEFT 0xE0
-#define REMOTE_RIGHT 0x90
-#define REMOTE_OK 0xA8
-#define REMOTE_UP 0x02
-#define REMOTE_DOWN 0x98
-#define REMOTE_TEST 0x22
-#define REMOTE_BACK 0xC2
-#define REMOTE_C 0xB0
-#define REMOTE_MENU 0xE2
+#define REMOTE_LEFT 0x07
+#define REMOTE_RIGHT 0x09
+#define REMOTE_OK 0x15
+#define REMOTE_UP 0x40
+#define REMOTE_DOWN 0x19
+#define REMOTE_TEST 0x44
+#define REMOTE_BACK 0x43
+#define REMOTE_C 0x0D
+#define REMOTE_MENU 0x47
 #define REMOTE_1 0x30
 #define REMOTE_2 0x18
 
@@ -237,9 +237,9 @@ void lcdClockEditBlink() {
 
 void lcdShowMenu() {
   lcd.setCursor(0, 0);
-  lcd.print(F("1. Clock  "));
+  lcd.print(F("1. Clock    "));
   lcd.setCursor(0, 1);
-  lcd.print(F("2. Alarm  "));
+  lcd.print(F("2. Alarm    "));
 
   lcd.setCursor(15, 1);
   lcd.print(F("M"));
