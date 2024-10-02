@@ -48,6 +48,9 @@ void setup() {
   Serial.print("Ready to receive IR signals of protocols: ");
   printActiveIRProtocols(&Serial);
   Serial.println("at pin " + (String)IR_PIN);
+
+  // clockTime = RTCDateTime::getRTCTime();
+  // Serial.println("Time: " + clockTime.getTimeString() + " " + clockTime.getDateString());
 }
 
 void loop() {
@@ -64,7 +67,8 @@ void loop() {
           }
           if (!canEditTime) {
             clockEnabled = !clockEnabled;
-            Serial.print(clockEnabled ? "ON" : "OFF");
+            Serial.print(F("Clock "));
+            Serial.println(clockEnabled ? "ON" : "OFF");
           }
           break;
         case REMOTE_UP:
@@ -89,6 +93,7 @@ void loop() {
           }
           if (editPos == 4) editTime.month = editTime.month == 12 ? 1 : editTime.month + 1;
           if (editPos == 5) editTime.year++;
+          Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
           break;
         case REMOTE_DOWN:
           Serial.println("DOWN");
@@ -112,6 +117,7 @@ void loop() {
           }
           if (editPos == 4) editTime.month = editTime.month == 1 ? 12 : editTime.month - 1;
           if (editPos == 5 && editTime.year > 0) editTime.year--;
+          Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
           break;
         case REMOTE_LEFT:
           Serial.println("LEFT");
@@ -139,6 +145,7 @@ void loop() {
             if (canEditTime) clockTime.copyDateTime(editTime);
             else editTime.copyDateTime(clockTime);
             canEditTime = !canEditTime;
+            if (canEditTime) Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
             lcd.clear();
           }
           break;
@@ -163,6 +170,10 @@ void loop() {
         case REMOTE_MENU:
           Serial.println("MENU");
           showMenu = !showMenu;
+          if (showMenu) {
+            Serial.println(F("1. Clock"));
+            Serial.println(F("2. Alarm"));
+          }
           showAlarm = false;
           currentAlarmTime.copyTime(alarmEditTime);
           lcd.clear();
@@ -214,9 +225,10 @@ void loop() {
     }
   }
 
-  if (delayNoDelay(60000)) {
+  if (delayNoDelay(1000) && !canEditTime) {
     Serial.println("Time: " + clockTime.getTimeString() + " " + clockTime.getDateString());
   }
+
   delay(50);
 }
 
