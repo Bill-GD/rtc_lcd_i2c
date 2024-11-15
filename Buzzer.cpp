@@ -1,5 +1,5 @@
-#ifndef Buzzer_h
-#define Buzzer_h
+#ifndef BUZZER
+#define BUZZER
 
 #include "Arduino.h"
 #include "Notes.cpp"
@@ -16,35 +16,41 @@ private:
   // the length must be the exact number of notes * 2
   int melody[198] PROGMEM = {
     // rick roll here
-    Notes::NOTE_E5, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_C5,8,  Notes::NOTE_B4,8,
-    Notes::NOTE_A4, 4,  Notes::NOTE_A4,8,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
-    Notes::NOTE_B4, -4,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
-    Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,8,  Notes::NOTE_A4,4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,
+    // Notes::NOTE_E5, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_C5,8,  Notes::NOTE_B4,8,
+    // Notes::NOTE_A4, 4,  Notes::NOTE_A4,8,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
+    // Notes::NOTE_B4, -4,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
+    // Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,8,  Notes::NOTE_A4,4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,
 
-    Notes::NOTE_D5, -4,  Notes::NOTE_F5,8,  Notes::NOTE_A5,4,  Notes::NOTE_G5,8,  Notes::NOTE_F5,8,
-    Notes::NOTE_E5, -4,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
-    Notes::NOTE_B4, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
-    Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,4, Notes::REST, 4,
+    // Notes::NOTE_D5, -4,  Notes::NOTE_F5,8,  Notes::NOTE_A5,4,  Notes::NOTE_G5,8,  Notes::NOTE_F5,8,
+    // Notes::NOTE_E5, -4,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
+    // Notes::NOTE_B4, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
+    // Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,4, Notes::REST, 4,
 
-    Notes::NOTE_E5, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_C5,8,  Notes::NOTE_B4,8,
-    Notes::NOTE_A4, 4,  Notes::NOTE_A4,8,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
-    Notes::NOTE_B4, -4,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
-    Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,8,  Notes::NOTE_A4,4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,
+    // Notes::NOTE_E5, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_C5,8,  Notes::NOTE_B4,8,
+    // Notes::NOTE_A4, 4,  Notes::NOTE_A4,8,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
+    // Notes::NOTE_B4, -4,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
+    // Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,8,  Notes::NOTE_A4,4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,
 
-    Notes::NOTE_D5, -4,  Notes::NOTE_F5,8,  Notes::NOTE_A5,4,  Notes::NOTE_G5,8,  Notes::NOTE_F5,8,
-    Notes::NOTE_E5, -4,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
-    Notes::NOTE_B4, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
-    Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,4, Notes::REST, 4,
+    // Notes::NOTE_D5, -4,  Notes::NOTE_F5,8,  Notes::NOTE_A5,4,  Notes::NOTE_G5,8,  Notes::NOTE_F5,8,
+    // Notes::NOTE_E5, -4,  Notes::NOTE_C5,8,  Notes::NOTE_E5,4,  Notes::NOTE_D5,8,  Notes::NOTE_C5,8,
+    // Notes::NOTE_B4, 4,  Notes::NOTE_B4,8,  Notes::NOTE_C5,8,  Notes::NOTE_D5,4,  Notes::NOTE_E5,4,
+    // Notes::NOTE_C5, 4,  Notes::NOTE_A4,4,  Notes::NOTE_A4,4, Notes::REST, 4,
 
 
-    Notes::NOTE_E5,2,  Notes::NOTE_C5,2,
-    Notes::NOTE_D5,2,   Notes::NOTE_B4,2,
-    Notes::NOTE_C5,2,   Notes::NOTE_A4,2,
-    Notes::NOTE_GS4,2,  Notes::NOTE_B4,4,  Notes::REST,8,
-    Notes::NOTE_E5,2,   Notes::NOTE_C5,2,
-    Notes::NOTE_D5,2,   Notes::NOTE_B4,2,
-    Notes::NOTE_C5,4,   Notes::NOTE_E5,4,  Notes::NOTE_A5,2,
-    Notes::NOTE_GS5,2,
+    // Notes::NOTE_E5,2,  Notes::NOTE_C5,2,
+    // Notes::NOTE_D5,2,   Notes::NOTE_B4,2,
+    // Notes::NOTE_C5,2,   Notes::NOTE_A4,2,
+    // Notes::NOTE_GS4,2,  Notes::NOTE_B4,4,  Notes::REST,8,
+    // Notes::NOTE_E5,2,   Notes::NOTE_C5,2,
+    // Notes::NOTE_D5,2,   Notes::NOTE_B4,2,
+    // Notes::NOTE_C5,4,   Notes::NOTE_E5,4,  Notes::NOTE_A5,2,
+    // Notes::NOTE_GS5,2,
+
+    
+    Notes::NOTE_E5, 8, Notes::NOTE_D5, 8, Notes::NOTE_FS4, 4, Notes::NOTE_GS4, 4, 
+    Notes::NOTE_CS5, 8, Notes::NOTE_B4, 8, Notes::NOTE_D4, 4, Notes::NOTE_E4, 4, 
+    Notes::NOTE_B4, 8, Notes::NOTE_A4, 8, Notes::NOTE_CS4, 4, Notes::NOTE_E4, 4,
+    Notes::NOTE_A4, 2, 
   };
   int wholenote = (60000 * 4 / speedModifier) / tempo;
   int notes = sizeof(melody) / sizeof(melody[0]) / 2;

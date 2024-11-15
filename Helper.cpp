@@ -1,4 +1,7 @@
-#include "Helper.h"
+#ifndef HELPER
+#define HELPER
+
+#include "Arduino.h"
 
 #define MAX_DELAY_COUNT 10
 
@@ -7,7 +10,7 @@ struct DelayCallback {
   unsigned int delayDuration;
 };
 
-DelayCallback delays[MAX_DELAY_COUNT]; // Assuming the maximum number of different delay values
+DelayCallback delays[MAX_DELAY_COUNT];  // Assuming the maximum number of different delay values
 
 bool delayNoDelay(unsigned int ms) {
   unsigned int now = millis();
@@ -19,11 +22,13 @@ bool delayNoDelay(unsigned int ms) {
         // Serial.print(F("Delayed: " (String)ms "ms"));
         return true;
       }
-    } else if (delays[i].delayDuration == 0) { // find an empty slot to add new delay
+    } else if (delays[i].delayDuration == 0) {  // find an empty slot to add new delay
       delays[i].delayDuration = ms;
       delays[i].lastExecutionTime = now;
       return false;
     }
   }
-  return false; // if no empty slot and no matches found
+  return false;  // if no empty slot and no matches found
 }
+
+#endif

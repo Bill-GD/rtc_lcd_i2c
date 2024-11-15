@@ -1,5 +1,5 @@
-#ifndef Notes_h
-#define Notes_h
+#ifndef NOTES
+#define NOTES
 
 class Notes {
 public:

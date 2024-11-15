@@ -1,18 +1,19 @@
 #include <Arduino.h>
 #define DECODE_NEC
 
-#include "LiquidCrystal_I2C.h"
-// #include "IRremote.h"
+#include <WiFi.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 #include "IRremote.hpp"
 
 #include "Buzzer.cpp"
-#include "Helper.h"
-#include "RTCControl.h"
+#include "Helper.cpp"
+#include "Clock.cpp"
 
-// #define IR_RECEIVE_PIN 15
-const uint8_t IR_PIN = 4;
-const uint8_t LED_PIN = 23;
-const uint8_t BUZZER_PIN = 32;
+#define IR_PIN 14
+#define LED_PIN 23
+#define BUZZER_PIN 32
+
 #define REMOTE_LEFT 0x07
 #define REMOTE_RIGHT 0x09
 #define REMOTE_OK 0x15
@@ -25,8 +26,12 @@ const uint8_t BUZZER_PIN = 32;
 #define REMOTE_1 0x30
 #define REMOTE_2 0x18
 
+#define NTP_SERVER     "pool.ntp.org"
+#define UTC_OFFSET     0
+#define UTC_OFFSET_DST 0
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-RTCDateTime clockTime, editTime;
+Clock clockTime = Clock(__DATE__, __TIME__), editTime = Clock(__DATE__, __TIME__);
 AlarmTime currentAlarmTime = AlarmTime(6, 0, 0), alarmEditTime = AlarmTime(6, 0, 0);
 Buzzer buzzer = Buzzer();
 
@@ -38,19 +43,23 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Running: " + (String)__FILE__);
   Serial.println("Using IRremote library version " VERSION_IRREMOTE);
-  RTCDateTime::initRTC(DateTime(__DATE__, __TIME__));
   lcd.init();
   lcd.backlight();
   pinMode(LED_PIN, OUTPUT);
   IrReceiver.begin(IR_PIN, ENABLE_LED_FEEDBACK);
-  RTCDateTime::rtc.adjust(DateTime(__DATE__, "05:59:55"));
+
+  WiFi.begin("Wokwi-GUEST", "", 6);
+  while (WiFi.status() != WL_CONNECTED) {
+    lcd.setCursor(0, 0);
+    lcd.print("Connecting...");
+    delay(250);
+  }
+  configTime(UTC_OFFSET, UTC_OFFSET_DST, NTP_SERVER);
+  // Clock::rtc.setTime(__DATE__, "05:59:55");
 
   Serial.print("Ready to receive IR signals of protocols: ");
   printActiveIRProtocols(&Serial);
   Serial.println("at pin " + (String)IR_PIN);
-
-  // clockTime = RTCDateTime::getRTCTime();
-  // Serial.println("Time: " + clockTime.getTimeString() + " " + clockTime.getDateString());
 }
 
 void loop() {
@@ -62,7 +71,7 @@ void loop() {
           Serial.println("OK");
           if (showMenu) break;
           if (canSetTime) {
-            RTCDateTime::rtc.adjust(DateTime(editTime.year, editTime.month, editTime.day, editTime.hour, editTime.min, editTime.sec));
+            clockTime.copyDateTime(editTime);
             canSetTime = false;
           }
           if (!canEditTime) {
@@ -152,7 +161,7 @@ void loop() {
         case REMOTE_C:
           Serial.println("C");
           if (showMenu) break;
-          RTCDateTime::rtc.adjust(DateTime(__DATE__, __TIME__));
+          clockTime.setTime(__DATE__, __TIME__);
           break;
         case REMOTE_BACK:
           Serial.println("BACK");
@@ -213,7 +222,7 @@ void loop() {
   }
 
   if (delayNoDelay(100)) {
-    if (clockEnabled) clockTime = RTCDateTime::getRTCTime();
+    if (clockEnabled) clockTime.getTime();
     if (showMenu) {
       lcdShowMenu();
     } else if (showAlarm) {
@@ -232,7 +241,7 @@ void loop() {
   delay(50);
 }
 
-void lcdDisplayClock(RTCDateTime datetime) {
+void lcdDisplayClock(Clock datetime) {
   lcd.setCursor(0, 0);
   lcd.print(" " + datetime.getTimeString() + "  " + (clockEnabled ? " ON" : "OFF") + " " + (canEditTime ? "E" : "C"));
   lcd.setCursor(0, 1);

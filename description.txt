@@ -1,0 +1,8 @@
+Các chức năng của hệ nhúng (Đồng hồ báo thức)
+- Hiển thị ngày giờ được kiểm soát bởi RTC trên LCD 1602
+- Chỉnh ngày giờ hiện tại của đồng hồ
+- Cài đặt giờ báo thức qua menu
+- Phát nhạc và đèn khi đến giờ báo thức
+- Tắt báo thức
+- Reset về giờ mặc định (thời điểm compile chương trình)
+- Điều khiển các chức năng của hệ nhúng bằng điều khiển hồng ngoại
