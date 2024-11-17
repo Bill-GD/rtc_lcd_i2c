@@ -1,14 +1,6 @@
-#ifndef HELPER
-#define HELPER
-
-#include "Arduino.h"
+#include "Helper.h"
 
 #define MAX_DELAY_COUNT 10
-
-struct DelayCallback {
-  unsigned int lastExecutionTime;
-  unsigned int delayDuration;
-};
 
 DelayCallback delays[MAX_DELAY_COUNT];  // Assuming the maximum number of different delay values
 
@@ -30,5 +22,3 @@ bool delayNoDelay(unsigned int ms) {
   }
   return false;  // if no empty slot and no matches found
 }
-
-#endif

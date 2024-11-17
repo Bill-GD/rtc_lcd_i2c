@@ -7,8 +7,8 @@
 #include "IRremote.hpp"
 
 #include "Buzzer.cpp"
-#include "Helper.cpp"
-#include "Clock.cpp"
+#include "Helper.h"
+#include "Clock.h"
 
 #define IR_PIN 14
 #define LED_PIN 23
