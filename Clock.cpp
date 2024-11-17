@@ -24,30 +24,30 @@ datetime getDateTime(const char* date, const char* time) {
 
   // Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
   switch (dateStr[0]) {
-    case 'J':
-      res.month = (dateStr[1] == 'a') ? 1 : ((dateStr[2] == 'n') ? 6 : 7);
-      break;
-    case 'F':
-      res.month = 2;
-      break;
-    case 'A':
-      res.month = dateStr[2] == 'r' ? 4 : 8;
-      break;
-    case 'M':
-      res.month = dateStr[2] == 'r' ? 3 : 5;
-      break;
-    case 'S':
-      res.month = 9;
-      break;
-    case 'O':
-      res.month = 10;
-      break;
-    case 'N':
-      res.month = 11;
-      break;
-    case 'D':
-      res.month = 12;
-      break;
+  case 'J':
+    res.month = (dateStr[1] == 'a') ? 1 : ((dateStr[2] == 'n') ? 6 : 7);
+    break;
+  case 'F':
+    res.month = 2;
+    break;
+  case 'A':
+    res.month = dateStr[2] == 'r' ? 4 : 8;
+    break;
+  case 'M':
+    res.month = dateStr[2] == 'r' ? 3 : 5;
+    break;
+  case 'S':
+    res.month = 9;
+    break;
+  case 'O':
+    res.month = 10;
+    break;
+  case 'N':
+    res.month = 11;
+    break;
+  case 'D':
+    res.month = 12;
+    break;
   }
 
   return res;
@@ -62,8 +62,8 @@ AlarmTime::AlarmTime(int hour, int min, int sec) {
 
 String AlarmTime::getTimeString() {
   String hs = this->hour >= 10 ? String(this->hour) : "0" + String(this->hour),
-         ms = this->min >= 10 ? String(this->min) : "0" + String(this->min),
-         ss = this->sec >= 10 ? String(this->sec) : "0" + String(this->sec);
+    ms = this->min >= 10 ? String(this->min) : "0" + String(this->min),
+    ss = this->sec >= 10 ? String(this->sec) : "0" + String(this->sec);
   return hs + ":" + ms + ":" + ss;
 }
 
@@ -105,11 +105,15 @@ void Clock::getTime() {
   if (!getLocalTime(&timeinfo)) {
     return;
   }
-  // LCD.setCursor(8, 0);
-  // LCD.println(&timeinfo, "%H:%M:%S");
 
-  // LCD.setCursor(0, 1);
-  // LCD.println(&timeinfo, "%d/%m/%Y   %Z");
+  this->hour = timeinfo.tm_hour;
+  this->min = timeinfo.tm_min;
+  this->sec = timeinfo.tm_sec;
+  this->weekdayNum = timeinfo.tm_wday;
+  this->day = timeinfo.tm_mday;
+  this->month = timeinfo.tm_mon + 1;
+  this->year = timeinfo.tm_year + 1900;
+  this->weekdayString = daysOfTheWeek[timeinfo.tm_wday];
 }
 
 void Clock::setTime(const char* date, const char* time) {
@@ -126,14 +130,14 @@ void Clock::setTime(const char* date, const char* time) {
 
 String Clock::getTimeString() {
   String hs = this->hour >= 10 ? String(this->hour) : "0" + String(this->hour),
-         ms = this->min >= 10 ? String(this->min) : "0" + String(this->min),
-         ss = this->sec >= 10 ? String(this->sec) : "0" + String(this->sec);
+    ms = this->min >= 10 ? String(this->min) : "0" + String(this->min),
+    ss = this->sec >= 10 ? String(this->sec) : "0" + String(this->sec);
   return hs + ":" + ms + ":" + ss;
 }
 
 String Clock::getDateString() {
   String ds = this->day >= 10 ? String(this->day) : "0" + String(this->day),
-         ms = this->month >= 10 ? String(this->month) : "0" + String(this->month);
+    ms = this->month >= 10 ? String(this->month) : "0" + String(this->month);
   return ds + "-" + ms + "-" + String(this->year);
 }
 
