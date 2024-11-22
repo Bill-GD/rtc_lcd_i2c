@@ -27,10 +27,10 @@
 #define REMOTE_0 0x68
 #define REMOTE_1 0x30
 #define REMOTE_2 0x18
+#define REMOTE_3 0x7A
 
+#define MENU_ITEM_COUNT 3
 #define NTP_SERVER "pool.ntp.org"
-#define UTC_OFFSET 0
-#define UTC_OFFSET_DST 0
 
 Clock clockTime = Clock(__DATE__, __TIME__);
 AlarmTime currentAlarmTime = AlarmTime(6, 0, 0), alarmEditTime = AlarmTime(currentAlarmTime);
@@ -38,9 +38,18 @@ Buzzer buzzer = Buzzer();
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 bool clockEnabled = true, canAlarm = false;
-bool showClock = true, showMenu = false, showAlarm = false;
+bool showClock = true, showMenu = false, showAlarm = false, showUtc = false;
 bool showUiInConsole = false;
-int editPos = 0;
+int editPos = 0, menuIndex = 0, menuPage = 1;
+
+String menuItems[MENU_ITEM_COUNT] = {
+  "1. Clock",
+  "2. Alarm",
+  "3. UTC"
+};
+
+// -12 to +12
+int UTC_OFFSET = 7, UTC_OFFSET_DST = 7, editUtc = 7;
 
 void setup() {
   Serial.begin(115200);
@@ -57,7 +66,7 @@ void setup() {
     lcd.print("Connecting...");
     delay(250);
   }
-  configTime(UTC_OFFSET, UTC_OFFSET_DST, NTP_SERVER);
+  updateTimeZone();
   // Clock::rtc.setTime(__DATE__, "05:59:55");
 
   Serial.print("Ready to receive IR signals of protocols: ");
@@ -78,6 +87,14 @@ void loop() {
             currentAlarmTime.copyTime(alarmEditTime);
             break;
           }
+          if (showUtc) {
+            lcdShowMenu();
+            UTC_OFFSET = editUtc;
+            UTC_OFFSET_DST = editUtc;
+            updateTimeZone();
+            clockTime.getTime();
+            break;
+          }
           clockEnabled = !clockEnabled;
           lcdDisplayClock(clockTime);
           Serial.print(F("Clock "));
@@ -85,22 +102,42 @@ void loop() {
           break;
         case REMOTE_UP:
           Serial.println("UP");
-          if (showMenu) break;
+          if (showMenu) {
+            menuIndex = menuIndex >= MENU_ITEM_COUNT - 2 ? 0 : menuIndex + 1;
+            menuPage = menuIndex + 1;
+            lcdShowMenu();
+            break;
+          }
           if (showAlarm) {
             if (editPos == 0) alarmEditTime.hour = alarmEditTime.hour == 23 ? 0 : alarmEditTime.hour + 1;
             if (editPos == 1) alarmEditTime.min = alarmEditTime.min == 59 ? 0 : alarmEditTime.min + 1;
             if (editPos == 2) alarmEditTime.sec = alarmEditTime.sec == 59 ? 0 : alarmEditTime.sec + 1;
             break;
           }
+          if (showUtc) {
+            editUtc = editUtc >= 12 ? -12 : editUtc + 1;
+            lcdEditTimeZone();
+            break;
+          }
           // Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
           break;
         case REMOTE_DOWN:
           Serial.println("DOWN");
-          if (showMenu) break;
+          if (showMenu) {
+            menuIndex = menuIndex <= 0 ? MENU_ITEM_COUNT - 2 : menuIndex - 1;
+            menuPage = menuIndex + 1;
+            lcdShowMenu();
+            break;
+          }
           if (showAlarm) {
             if (editPos == 0) alarmEditTime.hour = alarmEditTime.hour == 0 ? 23 : alarmEditTime.hour - 1;
             if (editPos == 1) alarmEditTime.min = alarmEditTime.min == 0 ? 59 : alarmEditTime.min - 1;
             if (editPos == 2) alarmEditTime.sec = alarmEditTime.sec == 0 ? 59 : alarmEditTime.sec - 1;
+            break;
+          }
+          if (showUtc) {
+            editUtc = editUtc <= -12 ? 12 : editUtc - 1;
+            lcdEditTimeZone();
             break;
           }
           // Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
@@ -130,19 +167,20 @@ void loop() {
           break;
         case REMOTE_C:
           Serial.println("C");
-          if (showMenu) break;
-          clockTime.setTime(__DATE__, __TIME__);
+          // if (showMenu) break;
+          // clockTime.setTime(__DATE__, __TIME__);
           break;
         case REMOTE_BACK:
           Serial.println("BACK");
-          if (!showAlarm) break;
+          if (showClock || showMenu) break;
 
+          if (showAlarm) alarmEditTime.copyTime(currentAlarmTime);
+          if (showUtc) editUtc = UTC_OFFSET;
           lcdShowMenu();
-          alarmEditTime.copyTime(currentAlarmTime);
           break;
         case REMOTE_MENU:
           Serial.println("MENU");
-          if (showMenu || showAlarm) break;
+          if (!showClock) break;
           lcdShowMenu();
           if (showUiInConsole) {
             Serial.println(F("1. Clock"));
@@ -165,6 +203,13 @@ void loop() {
           showMenu = false;
           showAlarm = true;
           editPos = 0;
+          break;
+        case REMOTE_3:
+          Serial.println("3");
+          if (!showMenu) break;
+          showMenu = false;
+          showUtc = true;
+          lcdEditTimeZone();
           break;
         case REMOTE_OFF:
           Serial.print("OFF");
@@ -206,6 +251,10 @@ void loop() {
   delay(50);
 }
 
+void updateTimeZone() {
+  configTime(UTC_OFFSET * 3600, UTC_OFFSET_DST * 3600, NTP_SERVER);
+}
+
 void printToLcd(const String lineOne, const String lineTwo) {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -231,7 +280,16 @@ void lcdShowMenu() {
   showMenu = true;
   showClock = false;
   showAlarm = false;
-  printToLcd("1. Clock", "2. Alarm       M");
+
+  String l1 = menuItems[menuIndex], l2 = menuItems[menuIndex + 1];
+  while (l1.length() < 14) l1 += " ";
+  while (l2.length() < 15) l2 += " ";
+
+  printToLcd(l1 + (menuPage < 10 ? " " + (String)menuPage : (String)menuPage), l2 + "M");
+
+  // String l = menuItems[menuIndex + 1];
+  // while (l.length() < 15) l += " ";
+  // printToLcd(menuItems[menuIndex], l + "M");
 }
 
 void lcdEditAlarm(AlarmTime alarm) {
@@ -241,4 +299,16 @@ void lcdEditAlarm(AlarmTime alarm) {
   if (!delayNoDelay(101) && editPos < 3) {
     lcdBlink(editPos * 3 + 1, 1, 2);
   }
+}
+
+void lcdEditTimeZone() {
+  String l = (String)editUtc;
+  if (editUtc > 9) {
+    l = " " + (String)editUtc;
+  } else if (editUtc >= 0) {
+    l = " " + (String)editUtc + " ";
+  } else if (editUtc > -10) {
+    l = (String)editUtc + " ";
+  }
+  printToLcd(" Change UTC:   U", "    " + l + "        M");
 }
