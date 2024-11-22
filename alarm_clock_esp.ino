@@ -1,14 +1,13 @@
 #include <Arduino.h>
 #define DECODE_NEC
 
-#include <WiFi.h>
-#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include "IRremote.hpp"
 
 #include "Buzzer.cpp"
 #include "Helper.h"
 #include "Clock.h"
+#include "NetworkInfo.h"
 
 #define IR_PIN 14
 #define LED_PIN 23
@@ -36,10 +35,11 @@ Clock clockTime = Clock(__DATE__, __TIME__);
 AlarmTime currentAlarmTime = AlarmTime(6, 0, 0), alarmEditTime = AlarmTime(currentAlarmTime);
 Buzzer buzzer = Buzzer();
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+NetworkInfo currentNetwork;
 
 bool clockEnabled = true, canAlarm = false;
 bool showClock = true, showMenu = false, showAlarm = false, showUtc = false;
-bool showUiInConsole = false;
+bool showUiInConsole = false, isConnected = false;
 int editPos = 0, menuIndex = 0, menuPage = 1;
 
 String menuItems[MENU_ITEM_COUNT] = {
@@ -60,12 +60,24 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   IrReceiver.begin(IR_PIN, ENABLE_LED_FEEDBACK);
 
-  WiFi.begin("Wokwi-GUEST", "", 6);
-  while (WiFi.status() != WL_CONNECTED) {
-    lcd.setCursor(0, 0);
-    lcd.print("Connecting...");
-    delay(250);
+  lcd.setCursor(0, 0);
+  printToLcd("Searching for", "open network...");
+
+  currentNetwork = getAvailableNetwork();
+  if (currentNetwork.ssid.isEmpty()) {
+    printToLcd("Found no", "open network");
+  } else {
+    printToLcd("Connecting to", currentNetwork.ssid);
+    connect(currentNetwork.ssid, currentNetwork.channel);
+    isConnected = true;
   }
+
+  // WiFi.begin("Wokwi-GUEST", "", 6);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   lcd.setCursor(0, 0);
+  //   lcd.print("Connecting...");
+  //   delay(250);
+  // }
   updateTimeZone();
   // Clock::rtc.setTime(__DATE__, "05:59:55");
 
@@ -81,7 +93,7 @@ void loop() {
       switch (v) {
         case REMOTE_OK:
           Serial.println("OK");
-          if (showMenu) break;
+          if (showMenu || !isConnected) break;
           if (showAlarm) {
             lcdShowMenu();
             currentAlarmTime.copyTime(alarmEditTime);
@@ -95,10 +107,12 @@ void loop() {
             clockTime.getTime();
             break;
           }
-          clockEnabled = !clockEnabled;
-          lcdDisplayClock(clockTime);
-          Serial.print(F("Clock "));
-          Serial.println(clockEnabled ? "ON" : "OFF");
+          if (showClock) {
+            clockEnabled = !clockEnabled;
+            lcdDisplayClock(clockTime);
+            Serial.print(F("Clock "));
+            Serial.println(clockEnabled ? "ON" : "OFF");
+          }
           break;
         case REMOTE_UP:
           Serial.println("UP");
@@ -180,7 +194,7 @@ void loop() {
           break;
         case REMOTE_MENU:
           Serial.println("MENU");
-          if (!showClock) break;
+          if (!showClock || !isConnected) break;
           lcdShowMenu();
           if (showUiInConsole) {
             Serial.println(F("1. Clock"));
@@ -271,9 +285,11 @@ void lcdBlink(const uint8_t col, const uint8_t row, const uint8_t length) {
 }
 
 void lcdDisplayClock(Clock datetime) {
-  printToLcd(
-    " " + datetime.getTimeString() + "  " + (clockEnabled ? " ON" : "OFF") + " C",
-    datetime.getDateString() + " " + datetime.weekdayString + " " + "M");
+  isConnected
+    ? printToLcd(
+      " " + datetime.getTimeString() + "  " + (clockEnabled ? " ON" : "OFF") + " C",
+      datetime.getDateString() + " " + datetime.weekdayString + " " + "M")
+    : printToLcd("No network", "Please reset");
 }
 
 void lcdShowMenu() {
