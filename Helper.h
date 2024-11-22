@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-struct DelayCallback {
+struct Delay {
   unsigned int lastExecutionTime;
   unsigned int delayDuration;
 };

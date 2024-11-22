@@ -23,6 +23,7 @@
 #define REMOTE_BACK 0xC2
 #define REMOTE_C 0xB0
 #define REMOTE_MENU 0xE2
+#define REMOTE_OFF 0xA2
 #define REMOTE_0 0x68
 #define REMOTE_1 0x30
 #define REMOTE_2 0x18
@@ -31,13 +32,13 @@
 #define UTC_OFFSET 0
 #define UTC_OFFSET_DST 0
 
-Clock clockTime = Clock(__DATE__, __TIME__), editTime = Clock(__DATE__, __TIME__);
+Clock clockTime = Clock(__DATE__, __TIME__);
 AlarmTime currentAlarmTime = AlarmTime(6, 0, 0), alarmEditTime = AlarmTime(currentAlarmTime);
 Buzzer buzzer = Buzzer();
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-bool clockEnabled = true, canEditTime = false, canSetTime = false, canAlarm = false;
-bool showMenu = false, showAlarm = false;
+bool clockEnabled = true, canAlarm = false;
+bool showClock = true, showMenu = false, showAlarm = false;
 bool showUiInConsole = false;
 int editPos = 0;
 
@@ -65,7 +66,7 @@ void setup() {
 }
 
 void loop() {
-  if (delayNoDelay(100)) {
+  if (delayNoDelay(10)) {
     if (IrReceiver.decode()) {
       unsigned long v = IrReceiver.decodedIRData.command;
       switch (v) {
@@ -73,19 +74,14 @@ void loop() {
           Serial.println("OK");
           if (showMenu) break;
           if (showAlarm) {
-            showAlarm = false;
+            lcdShowMenu();
             currentAlarmTime.copyTime(alarmEditTime);
-          } else {
-            if (canSetTime) {
-              clockTime.copyDateTime(editTime);
-              canSetTime = false;
-            }
-            if (!canEditTime) {
-              clockEnabled = !clockEnabled;
-              Serial.print(F("Clock "));
-              Serial.println(clockEnabled ? "ON" : "OFF");
-            }
+            break;
           }
+          clockEnabled = !clockEnabled;
+          lcdDisplayClock(clockTime);
+          Serial.print(F("Clock "));
+          Serial.println(clockEnabled ? "ON" : "OFF");
           break;
         case REMOTE_UP:
           Serial.println("UP");
@@ -96,20 +92,7 @@ void loop() {
             if (editPos == 2) alarmEditTime.sec = alarmEditTime.sec == 59 ? 0 : alarmEditTime.sec + 1;
             break;
           }
-          if (!canEditTime) break;
-          if (editPos == 0) editTime.hour = editTime.hour == 23 ? 0 : editTime.hour + 1;
-          if (editPos == 1) editTime.min = editTime.min == 59 ? 0 : editTime.min + 1;
-          if (editPos == 2) editTime.sec = editTime.sec == 59 ? 0 : editTime.sec + 1;
-          if (editPos == 3) {
-            int d = 0;
-            if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
-            else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
-            else d = 31;
-            editTime.day = editTime.day == d ? 1 : editTime.day + 1;
-          }
-          if (editPos == 4) editTime.month = editTime.month == 12 ? 1 : editTime.month + 1;
-          if (editPos == 5) editTime.year++;
-          Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
+          // Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
           break;
         case REMOTE_DOWN:
           Serial.println("DOWN");
@@ -120,27 +103,13 @@ void loop() {
             if (editPos == 2) alarmEditTime.sec = alarmEditTime.sec == 0 ? 59 : alarmEditTime.sec - 1;
             break;
           }
-          if (!canEditTime) break;
-          if (editPos == 0) editTime.hour = editTime.hour == 0 ? 23 : editTime.hour - 1;
-          if (editPos == 1) editTime.min = editTime.min == 0 ? 59 : editTime.min - 1;
-          if (editPos == 2) editTime.sec = editTime.sec == 0 ? 59 : editTime.sec - 1;
-          if (editPos == 3) {
-            int d = 0;
-            if (editTime.month == 2) d = editTime.year % 4 == 0 ? 29 : 28;
-            else if (editTime.month == 4 || editTime.month == 6 || editTime.month == 9 || editTime.month == 11) d = 30;
-            else d = 31;
-            editTime.day = editTime.day == 1 ? d : editTime.day - 1;
-          }
-          if (editPos == 4) editTime.month = editTime.month == 1 ? 12 : editTime.month - 1;
-          if (editPos == 5 && editTime.year > 0) editTime.year--;
-          Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
+          // Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
           break;
         case REMOTE_LEFT:
           Serial.println("LEFT");
           if (showMenu) break;
           editPos--;
           if (editPos < 0) {
-            if (canEditTime) editPos = 5;
             if (showAlarm) editPos = 2;
           }
           Serial.println("editPos: " + (String)editPos);
@@ -148,9 +117,6 @@ void loop() {
         case REMOTE_RIGHT:
           Serial.println("RIGHT");
           if (showMenu) break;
-          if (canEditTime) {
-            editPos = (editPos + 1) % 6;
-          }
           if (showAlarm) {
             editPos = (editPos + 1) % 3;
           }
@@ -158,15 +124,9 @@ void loop() {
           break;
         case REMOTE_TEST:
           Serial.println("TEST");
-          if (showMenu) break;
-          if (canEditTime) canSetTime = true;
-          if (!clockEnabled) {
-            if (canEditTime) clockTime.copyDateTime(editTime);
-            else editTime.copyDateTime(clockTime);
-            canEditTime = !canEditTime;
-            if (canEditTime) Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
-            lcd.clear();
-          }
+          Serial.print(showUiInConsole ? "Disabled" : "Enabled");
+          Serial.println(" console time");
+          showUiInConsole = !showUiInConsole;
           break;
         case REMOTE_C:
           Serial.println("C");
@@ -175,16 +135,10 @@ void loop() {
           break;
         case REMOTE_BACK:
           Serial.println("BACK");
-          if (showMenu) break;
-          if (canEditTime && !clockEnabled) {
-            canEditTime = false;
-            lcd.clear();
-          }
-          if (showAlarm) {
-            lcdShowMenu();
-            showAlarm = false;
-            alarmEditTime.copyTime(currentAlarmTime);
-          }
+          if (!showAlarm) break;
+
+          lcdShowMenu();
+          alarmEditTime.copyTime(currentAlarmTime);
           break;
         case REMOTE_MENU:
           Serial.println("MENU");
@@ -197,34 +151,38 @@ void loop() {
           break;
         case REMOTE_0:
           Serial.println("0");
-          Serial.print(showUiInConsole ? "Disabled" : "Enabled");
-          Serial.println(" console time");
-          showUiInConsole = !showUiInConsole;
           break;
         case REMOTE_1:
           Serial.println("1");
           if (!showMenu) break;
           showMenu = false;
+          showClock = true;
+          lcdDisplayClock(clockTime);
           break;
         case REMOTE_2:
           Serial.println("2");
           if (!showMenu) break;
           showMenu = false;
-          canEditTime = false;
           showAlarm = true;
           editPos = 0;
+          break;
+        case REMOTE_OFF:
+          Serial.print("OFF");
+          if (canAlarm) {
+            canAlarm = false;
+            Serial.println("Turned off alarm");
+          }
           break;
         default:
           Serial.print("0x");
           Serial.println(v, HEX);
-          if (canAlarm) canAlarm = false;
           break;
       }
       IrReceiver.resume();
     }
   }
 
-  if (delayNoDelay(10)) {
+  if (delayNoDelay(50)) {
     if (clockTime.compareTime(currentAlarmTime)) {
       canAlarm = true;
       if (showUiInConsole) Serial.println("Alarm!! " + currentAlarmTime.getTimeString());
@@ -235,18 +193,14 @@ void loop() {
     }
   }
 
-  if (delayNoDelay(100) && !showMenu) {
-    if (clockEnabled) clockTime.getTime();
-    if (showAlarm) {
-      lcdEditAlarm(alarmEditTime);
-    } else {
-      lcdDisplayClock(canEditTime ? editTime : clockTime);
-      if (canEditTime) lcdEditClockBlink();
-    }
-  }
+  if (showAlarm) lcdEditAlarm(alarmEditTime);
 
-  if (delayNoDelay(1000) && !canEditTime && showUiInConsole) {
-    Serial.println("Time: " + clockTime.getTimeString() + " " + clockTime.getDateString());
+  if (delayNoDelay(1000) && showClock && clockEnabled) {
+    clockTime.getTime();
+    lcdDisplayClock(clockTime);
+    if (showUiInConsole) {
+      Serial.println("Time: " + clockTime.getTimeString() + " " + clockTime.getDateString());
+    }
   }
 
   delay(50);
@@ -269,32 +223,22 @@ void lcdBlink(const uint8_t col, const uint8_t row, const uint8_t length) {
 
 void lcdDisplayClock(Clock datetime) {
   printToLcd(
-    " " + datetime.getTimeString() + "  " + (clockEnabled ? " ON" : "OFF") + " " + (canEditTime ? "E" : "C"),
+    " " + datetime.getTimeString() + "  " + (clockEnabled ? " ON" : "OFF") + " C",
     datetime.getDateString() + " " + datetime.weekdayString + " " + "M");
-}
-
-void lcdEditClockBlink() {
-  if (delayNoDelay(200)) return;
-  // blink time
-  if (editPos < 3) {
-    lcdBlink(editPos * 3 + 1, 0, 2);
-    return;
-  }
-  // blink date
-  if (editPos == 5) lcdBlink((editPos - 3) * 3, 1, 4);
-  else lcdBlink((editPos - 3) * 3, 1, 2);
 }
 
 void lcdShowMenu() {
   showMenu = true;
+  showClock = false;
+  showAlarm = false;
   printToLcd("1. Clock", "2. Alarm       M");
 }
 
 void lcdEditAlarm(AlarmTime alarm) {
-  printToLcd(" Edit alarm:    M", " " + alarm.getTimeString());
-
-  if (delayNoDelay(200)) return;
-  if (editPos < 3) {
+  if (!delayNoDelay(200)) {
+    printToLcd(" Edit alarm:   A", " " + alarm.getTimeString() + "      M");
+  }
+  if (!delayNoDelay(101) && editPos < 3) {
     lcdBlink(editPos * 3 + 1, 1, 2);
   }
 }
