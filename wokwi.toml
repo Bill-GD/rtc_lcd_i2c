@@ -1,4 +1,0 @@
-[wokwi]
-version = 1
-firmware = './esp-at.bin'
-elf = './esp-at.elf'
