@@ -12,6 +12,7 @@ public:
   int hour, min, sec;
 
   AlarmTime(int hour, int min, int sec);
+  // AlarmTime(AlarmTime other);
   String getTimeString();
   void copyTime(AlarmTime other);
 };
@@ -22,7 +23,6 @@ public:
   String weekdayString;
 
   Clock();
-  Clock(const datetime dt);
   Clock(const char* date, const char* time);
   void getTime();
   void setTime(const char* date, const char* time);
