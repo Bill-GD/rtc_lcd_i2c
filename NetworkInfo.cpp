@@ -1,6 +1,6 @@
 #include "NetworkInfo.h"
 
-NetworkInfo getAvailableNetwork() {
+inline NetworkInfo getAvailableNetwork() {
   Serial.println("Scanning for open network.");
   int count = WiFi.scanNetworks();
   NetworkInfo res = { "", 0 };
@@ -19,7 +19,7 @@ NetworkInfo getAvailableNetwork() {
   return res;
 }
 
-void connect(String ssid, int channel) {
+inline void connect(String ssid, int channel) {
   WiFi.begin(ssid, "", channel);
   while (WiFi.status() != WL_CONNECTED) {
     delay(250);

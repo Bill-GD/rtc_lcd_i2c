@@ -73,15 +73,14 @@ void setup() {
     connect(currentNetwork.ssid, currentNetwork.channel);
     isConnected = true;
   }
-
   // WiFi.begin("Wokwi-GUEST", "", 6);
   // while (WiFi.status() != WL_CONNECTED) {
   //   lcd.setCursor(0, 0);
   //   lcd.print("Connecting...");
   //   delay(250);
   // }
+
   updateTimeZone();
-  // Clock::rtc.setTime(__DATE__, "05:59:55");
 
   Serial.print("Ready to receive IR signals of protocols: ");
   printActiveIRProtocols(&Serial);
@@ -139,7 +138,6 @@ void loop() {
             lcdEditTimeZone();
             break;
           }
-          // Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
           break;
         case REMOTE_DOWN:
           Serial.println("DOWN");
@@ -160,7 +158,6 @@ void loop() {
             lcdEditTimeZone();
             break;
           }
-          // Serial.println("Time: " + editTime.getTimeString() + " " + editTime.getDateString());
           break;
         case REMOTE_LEFT:
           Serial.println("LEFT");
@@ -197,8 +194,8 @@ void loop() {
           break;
         case REMOTE_C:
           Serial.println("C");
-          // if (showMenu) break;
-          // clockTime.setTime(__DATE__, __TIME__);
+          if (showMenu) break;
+          clockTime.getTime();
           break;
         case REMOTE_BACK:
           Serial.println("BACK");
@@ -266,7 +263,8 @@ void loop() {
   }
 
   if (delayNoDelay(50)) {
-    if (clockTime.compareTime(currentAlarmTime)) {
+    // if (clockTime.compareTime(currentAlarmTime)) {
+    if (currentAlarmTime.compareTime(clockTime)) {
       canAlarm = true;
       if (showUiInConsole) Serial.println("Alarm!! " + currentAlarmTime.getTimeString());
     }
