@@ -27,8 +27,9 @@
 #define REMOTE_1 0x30
 #define REMOTE_2 0x18
 #define REMOTE_3 0x7A
+#define REMOTE_4 0x10
 
-#define MENU_ITEM_COUNT 3
+#define MENU_ITEM_COUNT 4
 #define NTP_SERVER "pool.ntp.org"
 
 Clock clockTime = Clock(__DATE__, __TIME__);
@@ -38,18 +39,19 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 NetworkInfo currentNetwork;
 
 bool clockEnabled = true, canAlarm = false;
-bool showClock = true, showMenu = false, showAlarm = false, showUtc = false;
+bool showClock = true, showMenu = false, showAlarm = false, showMusic = false, showUtc = false;
 bool showUiInConsole = false, isConnected = false;
-int editPos = 0, menuIndex = 0, menuPage = 1;
+int editPos = 0, menuIndex = 0, menuPage = 1, songIndex = 0;
+
+// -12 to +12
+int UTC_OFFSET = 7, UTC_OFFSET_DST = 7, editUtc = 7;
 
 String menuItems[MENU_ITEM_COUNT] = {
   "1. Clock",
   "2. Alarm",
-  "3. UTC"
+  "3. Music",
+  "4. UTC",
 };
-
-// -12 to +12
-int UTC_OFFSET = 7, UTC_OFFSET_DST = 7, editUtc = 7;
 
 void setup() {
   Serial.begin(115200);
@@ -67,7 +69,7 @@ void setup() {
   if (currentNetwork.ssid.isEmpty()) {
     printToLcd("Found no", "open network");
   } else {
-    printToLcd("Connecting to", currentNetwork.ssid);
+    printToLcd("Connecting to", "(" + (String)currentNetwork.rssi + ")" + currentNetwork.ssid);
     connect(currentNetwork.ssid, currentNetwork.channel);
     isConnected = true;
   }
@@ -97,7 +99,6 @@ void loop() {
           if (showAlarm) {
             lcdShowMenu();
             currentAlarmTime.copyTime(alarmEditTime);
-            break;
           }
           if (showUtc) {
             lcdShowMenu();
@@ -105,7 +106,12 @@ void loop() {
             UTC_OFFSET_DST = editUtc;
             updateTimeZone();
             clockTime.getTime();
-            break;
+            Serial.println("Updated UTC: " + (String)editUtc);
+          }
+          if (showMusic) {
+            lcdShowMenu();
+            buzzer.setSong(songIndex);
+            Serial.println("Updated song: " + (String)songIndex + " - " + buzzer.names[songIndex]);
           }
           if (showClock) {
             clockEnabled = !clockEnabled;
@@ -117,7 +123,7 @@ void loop() {
         case REMOTE_UP:
           Serial.println("UP");
           if (showMenu) {
-            menuIndex = menuIndex >= MENU_ITEM_COUNT - 2 ? 0 : menuIndex + 1;
+            menuIndex = menuIndex <= 0 ? MENU_ITEM_COUNT - 2 : menuIndex - 1;
             menuPage = menuIndex + 1;
             lcdShowMenu();
             break;
@@ -138,7 +144,7 @@ void loop() {
         case REMOTE_DOWN:
           Serial.println("DOWN");
           if (showMenu) {
-            menuIndex = menuIndex <= 0 ? MENU_ITEM_COUNT - 2 : menuIndex - 1;
+            menuIndex = menuIndex >= MENU_ITEM_COUNT - 2 ? 0 : menuIndex + 1;
             menuPage = menuIndex + 1;
             lcdShowMenu();
             break;
@@ -159,19 +165,29 @@ void loop() {
         case REMOTE_LEFT:
           Serial.println("LEFT");
           if (showMenu) break;
-          editPos--;
-          if (editPos < 0) {
-            if (showAlarm) editPos = 2;
+          if (showAlarm) {
+            editPos--;
+            if (editPos < 0) editPos = 2;
+            Serial.println("editPos: " + (String)editPos);
           }
-          Serial.println("editPos: " + (String)editPos);
+          if (showMusic) {
+            songIndex--;
+            if (songIndex < 0) songIndex = SONG_COUNT - 1;
+            lcdChangeMusic();
+          }
           break;
         case REMOTE_RIGHT:
           Serial.println("RIGHT");
           if (showMenu) break;
           if (showAlarm) {
             editPos = (editPos + 1) % 3;
+            Serial.println("editPos: " + (String)editPos);
           }
-          Serial.println("editPos: " + (String)editPos);
+          if (showMusic) {
+            songIndex++;
+            if (songIndex >= SONG_COUNT) songIndex = 0;
+            lcdChangeMusic();
+          }
           break;
         case REMOTE_TEST:
           Serial.println("TEST");
@@ -190,6 +206,7 @@ void loop() {
 
           if (showAlarm) alarmEditTime.copyTime(currentAlarmTime);
           if (showUtc) editUtc = UTC_OFFSET;
+          if (showMusic) songIndex = buzzer.currentSong;
           lcdShowMenu();
           break;
         case REMOTE_MENU:
@@ -222,11 +239,18 @@ void loop() {
           Serial.println("3");
           if (!showMenu) break;
           showMenu = false;
+          showMusic = true;
+          lcdChangeMusic();
+          break;
+        case REMOTE_4:
+          Serial.println("4");
+          if (!showMenu) break;
+          showMenu = false;
           showUtc = true;
           lcdEditTimeZone();
           break;
         case REMOTE_OFF:
-          Serial.print("OFF");
+          Serial.println("OFF");
           if (canAlarm) {
             canAlarm = false;
             Serial.println("Turned off alarm");
@@ -296,6 +320,8 @@ void lcdShowMenu() {
   showMenu = true;
   showClock = false;
   showAlarm = false;
+  showUtc = false;
+  showMusic = false;
 
   String l1 = menuItems[menuIndex], l2 = menuItems[menuIndex + 1];
   while (l1.length() < 14) l1 += " ";
@@ -327,4 +353,17 @@ void lcdEditTimeZone() {
     l = (String)editUtc + " ";
   }
   printToLcd(" Change UTC:   U", "    " + l + "        M");
+}
+
+void lcdChangeMusic() {
+  String name = buzzer.names[songIndex];
+  while (name.length() < 16) {
+    name = " " + name + " ";
+  }
+  String num = (String)(songIndex + 1);
+  if (songIndex + 1 > 9) num = "      " + num;
+  else num = "       " + num;
+  num += "      ";
+
+  printToLcd("<" + num + ">", name);
 }

@@ -6,6 +6,7 @@
 
 struct NetworkInfo {
   String ssid;
+  int rssi;
   int channel;
 };
 

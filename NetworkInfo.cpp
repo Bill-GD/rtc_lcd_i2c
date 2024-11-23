@@ -11,8 +11,9 @@ NetworkInfo getAvailableNetwork() {
     if (WiFi.encryptionType(i) != WIFI_AUTH_OPEN) continue;
 
     res.ssid = WiFi.SSID(i);
+    res.rssi = WiFi.RSSI(i);
     res.channel = WiFi.channel(i);
-    Serial.println("Found open network: " + res.ssid);
+    Serial.println("Found open network: " + res.ssid + " (" + (String)res.rssi + ")");
     break;
   }
   return res;
